@@ -1,0 +1,1 @@
+// Secondary action button component.

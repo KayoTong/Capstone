@@ -1,0 +1,1 @@
+// Toggle switch input component.
