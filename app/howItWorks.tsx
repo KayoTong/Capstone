@@ -56,7 +56,7 @@ export default function HowItWorks() {
         </View>
       </ScrollView>
 
-      <TouchableOpacity style={styles.startBtn} onPress={() => router.push('/addItem' as any)}>
+      <TouchableOpacity style={styles.startBtn} onPress={() => router.push('/setup' as any)}> 
         <View style={styles.btnNumber}><Text style={styles.numberText}>3</Text></View>
         <Text style={styles.startBtnText}>Got It, Let's Start</Text>
       </TouchableOpacity>
