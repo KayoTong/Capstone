@@ -18,11 +18,11 @@ export default function AddItem() {
   const cameraRef = useRef<CameraView | null>(null); // reference to the camera component
   const [showCamera, setShowCamera] = useState(false); // state to toggle camera view
 
-  if (!permission) {
+  if (!permission) { // permission is still loading
     return <View />;
   }
 
-  if (!permission.granted) {
+  if (!permission.granted) { // if permission is not granted, show a message and button to request permission
     return (
       <View style={styles.permissionContainer}>
         <Text style={styles.permissionText}>
@@ -38,13 +38,13 @@ export default function AddItem() {
     );
   }
 
-  if (!photoUri) {
+  if (!photoUri) { // if no photo is taken yet, show the camera view
     return (
       <View style={{ flex: 1 }}>
         <CameraView ref={cameraRef} style={{ flex: 1 }} facing="back" />
 
-        {/* Capture button */}
-        <View style={styles.captureContainer}>
+        {/* Capture button */} 
+        <View style={styles.captureContainer}> 
           <TouchableOpacity
             style={styles.captureButton}
             onPress={async () => {
@@ -60,7 +60,7 @@ export default function AddItem() {
       </View>
     );
   }
-
+  // If photo is taken, show the preview with option to retake
   return (
     <View style={styles.container}>
       <TouchableOpacity onPress={() => router.back()}>
@@ -100,7 +100,7 @@ export default function AddItem() {
       </TouchableOpacity>
     </View>
   );
-}
+} // End of AddItem component
 const styles = StyleSheet.create({
   container: {
     flex: 1,
