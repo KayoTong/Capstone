@@ -1,7 +1,7 @@
 import { View, Text } from "react-native";
 import { useRouter } from "expo-router";
 import PrimaryButton from "@/src/components/buttons/PrimaryButton";
-
+// Setup screen prompting user to add their first essential item.
 export default function SetupScreen() {
   const router = useRouter();
 

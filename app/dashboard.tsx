@@ -3,7 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Alert, FlatList, Image, Linking, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
-
+// portable essentials dashboard screen
 export default function Dashboard() {
   const router = useRouter();
   const [items, setItems] = useState<ChecklistItem[]>(checklistStore.getItems());
