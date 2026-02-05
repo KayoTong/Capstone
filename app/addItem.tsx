@@ -1,3 +1,4 @@
+import { checklistStore } from "@/src/store/checklistStore";
 import { Ionicons } from "@expo/vector-icons";
 import { CameraView, useCameraPermissions } from "expo-camera"; // we are adding camera functionality
 import { useRouter } from "expo-router";
@@ -15,6 +16,7 @@ export default function AddItem() {
   const router = useRouter();
   const [permission, requestPermission] = useCameraPermissions(); // request camera permissions
   const [photoUri, setPhotoUri] = useState<string | null>(null); // state to hold the captured photo URI
+  const [itemName, setItemName] = useState(""); // state to hold the item name
   const cameraRef = useRef<CameraView | null>(null); // reference to the camera component
   const [showCamera, setShowCamera] = useState(false); // state to toggle camera view
 
@@ -90,11 +92,18 @@ export default function AddItem() {
         style={styles.input}
         placeholder="e.g. Work Keys"
         placeholderTextColor="#555"
+        value={itemName}
+        onChangeText={setItemName}
       />
 
       <TouchableOpacity
         style={styles.saveBtn}
-        onPress={() => router.push("/dashboard")}
+        onPress={() => {
+          if (itemName.trim() && photoUri) {
+            checklistStore.addItem(itemName, photoUri);
+            router.push("/dashboard");
+          }
+        }}
       >
         <Text style={styles.saveBtnText}>Save Item</Text>
       </TouchableOpacity>
