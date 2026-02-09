@@ -88,8 +88,8 @@ export default function Dashboard() {
         <Ionicons name="add" size={28} color="white" />
         <Text style={styles.addButtonText}>Add Item</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.mapButton} onPress={openMaps}>
-        <Text style={styles.mapButtonText}>Return Home</Text>
+      <TouchableOpacity style={styles.mapButton} onPress={() => router.push("/geofencesetup")}> // navigate to geofence setup
+        <Text style={styles.mapButtonText}>Setup Geofencing </Text>
       </TouchableOpacity>
     </View>
   );
