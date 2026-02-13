@@ -1,13 +1,23 @@
 import { saveGeofence } from "@/storage/geofence";
 import Slider from "@react-native-community/slider";
 import * as Location from "expo-location";
+import { useRouter } from 'expo-router'; 
 import { useEffect, useState } from "react";
-import { StyleSheet, Switch, Text, TouchableOpacity, View } from "react-native";
+import {
+  ActivityIndicator,
+  Alert,
+  StyleSheet,
+  Switch,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import MapView, { Circle, Marker } from "react-native-maps";
 
 export default function GeofenceSetup() {
-  // Geofence setup screen
+  const router = useRouter(); 
   const DEFAULT_RADIUS = 150;
+  
   type MapRegion = {
     latitude: number;
     longitude: number;
@@ -15,49 +25,77 @@ export default function GeofenceSetup() {
     longitudeDelta: number;
   };
 
-  const [region, setRegion] = useState<MapRegion | null>(null); // state to hold map region, initially null until we get user's location
-  const [radius, setRadius] = useState(DEFAULT_RADIUS); // state to hold geofence radius, defaulting to 150 meters
-  const [enabled, setEnabled] = useState(false); // state to track if geofencing is enabled or not
+  const [region, setRegion] = useState<MapRegion | null>(null);
+  const [radius, setRadius] = useState(DEFAULT_RADIUS);
+  const [enabled, setEnabled] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Get user's current location to center the map
     (async () => {
-      const { granted } = await Location.requestForegroundPermissionsAsync(); // request location permissions
-      if (!granted) return; // if permission not granted, do nothing
+      try {
+        const { granted } = await Location.requestForegroundPermissionsAsync();
+        if (!granted) {
+          Alert.alert("Permission Denied", "Location access is needed for geofencing.");
+          setLoading(false);
+          return;
+        }
 
-      const loc = await Location.getCurrentPositionAsync({}); // get current location
-      setRegion({
-        // set map region to user's location
-        latitude: loc.coords.latitude, // set latitude to current location
-        longitude: loc.coords.longitude, // set longitude to current location
-        latitudeDelta: 0.01, // small delta for zoomed-in view
-        longitudeDelta: 0.01, // small delta for zoomed-in view
-      });
+        // Fast fetch using last known position
+        let loc = await Location.getLastKnownPositionAsync({});
+
+        // Fallback to live GPS if cache is empty
+        if (!loc) {
+          loc = await Location.getCurrentPositionAsync({
+            accuracy: Location.Accuracy.Balanced,
+          });
+        }
+
+        if (loc) {
+          setRegion({
+            latitude: loc.coords.latitude,
+            longitude: loc.coords.longitude,
+            latitudeDelta: 0.01,
+            longitudeDelta: 0.01,
+          });
+        }
+      } catch (error) {
+        Alert.alert("Location Error", "Could not determine your current position. Ensure GPS is on.");
+      } finally {
+        setLoading(false);
+      }
     })();
   }, []);
 
   async function handleSave() {
-    // function to handle saving geofence configuration
     if (!region) return;
+    try {
+      await saveGeofence({
+        enabled,
+        latitude: region.latitude,
+        longitude: region.longitude,
+        radiusMeters: radius,
+      });
 
-    await saveGeofence({
-      //
-      enabled, // save whether geofencing is enabled
-      latitude: region.latitude, // save latitude from map region
-      longitude: region.longitude, // save longitude from map region
-      radiusMeters: radius, // save radius from state
-    });
+      // REDIRECT: Go straight to the white Main Homepage (home.tsx)
+      router.replace("/home" as any); 
+      
+    } catch (e) {
+      Alert.alert("Error", "Failed to save geofence.");
+    }
   }
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>BeforeIGo Setup</Text>
 
-      {/* MAP GOES HERE */}
-      {region && (
+      {loading ? (
+        <View style={styles.loadingBox}>
+          <ActivityIndicator size="large" color="#00ff88" />
+          <Text style={{ color: "#aaa", marginTop: 10 }}>Locating your home...</Text>
+        </View>
+      ) : region ? (
         <MapView style={styles.map} initialRegion={region}>
           <Marker coordinate={region} />
-
           <Circle
             center={region}
             radius={radius}
@@ -65,13 +103,17 @@ export default function GeofenceSetup() {
             fillColor="rgba(0,255,0,0.2)"
           />
         </MapView>
+      ) : (
+        <View style={styles.loadingBox}>
+          <Text style={{ color: "#ff6b6b" }}>Map unavailable. Check GPS.</Text>
+        </View>
       )}
 
-      {/* RADIUS SLIDER */}
       <Text style={styles.label}>Detection Radius</Text>
       <Text style={styles.radiusText}>{radius} meters</Text>
 
       <Slider
+        style={{ width: "100%", height: 40 }}
         minimumValue={50}
         maximumValue={500}
         step={25}
@@ -79,16 +121,22 @@ export default function GeofenceSetup() {
         onValueChange={setRadius}
         minimumTrackTintColor="#00ff88"
         maximumTrackTintColor="#333"
+        thumbTintColor="#00ff88"
       />
-      {/* ENABLE TOGGLE */}
+
       <View style={styles.toggleRow}>
-        <Text style={styles.label}>Enable Geofencing</Text>
-        <Switch value={enabled} onValueChange={setEnabled} />
+        <View>
+          <Text style={styles.label}>Enable Geofencing</Text>
+          <Text style={{ color: "#666", fontSize: 12 }}>Alert when leaving this area</Text>
+        </View>
+        <Switch
+          value={enabled}
+          onValueChange={setEnabled}
+          trackColor={{ false: "#333", true: "#00ff88" }}
+        />
       </View>
 
-      {/* ITEMS TO CHECK */}
-
-      <TouchableOpacity style={styles.saveButton}>
+      <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
         <Text style={styles.saveText}>Save & Activate</Text>
       </TouchableOpacity>
     </View>
@@ -96,45 +144,13 @@ export default function GeofenceSetup() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#0b0f0c",
-    padding: 16,
-  },
-  title: {
-    color: "#fff",
-    fontSize: 22,
-    fontWeight: "600",
-    marginBottom: 12,
-  },
-  map: {
-    height: 260,
-    borderRadius: 20,
-    overflow: "hidden",
-    marginBottom: 16,
-  },
-  label: {
-    color: "#aaa",
-    marginTop: 12,
-  },
-  radiusText: {
-    color: "#00ff88",
-    fontSize: 16,
-    marginBottom: 8,
-  },
-  toggleRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginVertical: 16,
-  },
-  saveButton: {
-    backgroundColor: "#00ff88",
-    padding: 16,
-    borderRadius: 30,
-    alignItems: "center",
-    marginTop: "auto",
-  },
-  saveText: {
-    fontWeight: "600",
-  },
+  container: { flex: 1, backgroundColor: "#0b0f0c", padding: 16, paddingTop: 50 },
+  title: { color: "#fff", fontSize: 24, fontWeight: "bold", marginBottom: 20 },
+  map: { height: 300, borderRadius: 20, marginBottom: 16 },
+  loadingBox: { height: 300, justifyContent: "center", alignItems: "center", backgroundColor: "#111", borderRadius: 20, marginBottom: 16 },
+  label: { color: "#fff", fontSize: 16, fontWeight: "500" },
+  radiusText: { color: "#00ff88", fontSize: 18, fontWeight: "bold", marginVertical: 8 },
+  toggleRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingVertical: 20, borderTopWidth: 1, borderTopColor: "#222" },
+  saveButton: { backgroundColor: "#00ff88", padding: 18, borderRadius: 30, alignItems: "center", marginTop: "auto", marginBottom: 20 },
+  saveText: { fontWeight: "bold", fontSize: 18, color: "#0b0f0c" },
 });
