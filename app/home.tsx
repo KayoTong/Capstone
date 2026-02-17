@@ -9,6 +9,16 @@ export default function FinalHomeScreen() {
   const [items, setItems] = useState<ChecklistItem[]>(checklistStore.getItems());
 
   useEffect(() => {
+    // 1. Load saved data from phone storage on startup
+    const initStore = async () => {
+      if (checklistStore.loadFromDisk) {
+        await checklistStore.loadFromDisk();
+        setItems([...checklistStore.getItems()]);
+      }
+    };
+    initStore();
+
+    // 2. Subscribe to any future changes
     const unsubscribe = checklistStore.subscribe(() => {
       setItems([...checklistStore.getItems()]);
     });
@@ -23,7 +33,7 @@ export default function FinalHomeScreen() {
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         
-        {/* Header: Green Pinpoint Logo */}
+        {/* Header */}
         <View style={styles.header}>
           <View style={styles.logoRow}>
             <View style={styles.logoBox}>
@@ -62,7 +72,7 @@ export default function FinalHomeScreen() {
           </View>
         </View>
 
-        {/* 2. OVERVIEW GRID */}
+        {/* 2. OVERVIEW GRID - Updated path to /dashboard */}
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionLabel}>📊 Items Overview</Text>
           <TouchableOpacity onPress={() => router.push('/dashboard')}>
@@ -100,7 +110,7 @@ export default function FinalHomeScreen() {
         </View>
       </ScrollView>
 
-      {/* Floating Plus Button - Green */}
+      {/* Floating Plus Button - Updated path to /dashboard */}
       <TouchableOpacity style={styles.fab} onPress={() => router.push('/dashboard')}>
         <Ionicons name="add" size={32} color="white" />
       </TouchableOpacity>
@@ -118,6 +128,7 @@ export default function FinalHomeScreen() {
   );
 }
 
+// ... (Keep StatBox, ItemRow, MenuListItem, TabItem, and Styles exactly as they were)
 const StatBox = ({ count, label, color }: any) => (
   <View style={styles.statBox}>
     <Text style={[styles.statCount, { color }]}>{count}</Text>

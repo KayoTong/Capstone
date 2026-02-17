@@ -2,25 +2,19 @@ import { ChecklistItem, checklistStore } from '@/src/store/checklistStore';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Alert, FlatList, Image, Linking, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
-// portable essentials dashboard screen
-export default function Dashboard() {
+import { Alert, FlatList, Image, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
+
+export default function PortableEssentials() {
   const router = useRouter();
   const [items, setItems] = useState<ChecklistItem[]>(checklistStore.getItems());
 
   useEffect(() => {
-    // Subscribe to store changes
+    // Subscribe to store changes to keep UI in sync
     const unsubscribe = checklistStore.subscribe(() => {
       setItems([...checklistStore.getItems()]);
     });
-
     return unsubscribe;
   }, []);
-
-  const openMaps = () => {
-    const url = `geo:40.7128,-74.0060?q=40.7128,-74.0060(Home)&mode=w`;
-    Linking.openURL(url).catch(() => Linking.openURL(`https://maps.google.com`));
-  };
 
   const handleToggle = (id: string) => {
     checklistStore.toggleItem(id);
@@ -29,19 +23,13 @@ export default function Dashboard() {
   const handleDelete = (id: string, itemName: string) => {
     Alert.alert(
       "Delete Item",
-      `Are you sure you want to delete "${itemName}"?`,       //ARE YOU SURE PROMPT FOR ITEM DELETION
+      `Are you sure you want to delete "${itemName}"?`,
       [
-        {
-          text: "Cancel",
-          onPress: () => {},
-          style: "cancel",
-        },
-        {
-          text: "Delete",
-          onPress: () => {
-            checklistStore.removeItem(id);
-          },
-          style: "destructive",
+        { text: "Cancel", style: "cancel" },
+        { 
+          text: "Delete", 
+          style: "destructive", 
+          onPress: () => checklistStore.removeItem(id) 
         },
       ]
     );
@@ -50,15 +38,15 @@ export default function Dashboard() {
   return (
     <View style={styles.container}>
       <Text style={styles.titleText}>Portable Essentials</Text>
+      
       <FlatList
         data={items}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <View style={styles.itemCard}>
-            <Image
-              source={{ uri: item.photoUri }}
-              style={styles.itemPhoto}
-            />
+            {item.photoUri && (
+              <Image source={{ uri: item.photoUri }} style={styles.itemPhoto} />
+            )}
             <View style={styles.itemContent}>
               <Text style={styles.itemText}>{item.name}</Text>
               <Switch 
@@ -81,6 +69,7 @@ export default function Dashboard() {
           </View>
         )}
       />
+
       <TouchableOpacity 
         style={styles.addButton}
         onPress={() => router.push("/addItem")}
@@ -88,9 +77,14 @@ export default function Dashboard() {
         <Ionicons name="add" size={28} color="white" />
         <Text style={styles.addButtonText}>Add Item</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.mapButton} onPress={() => router.push("/geofencesetup" as any)}>
-      <Text style={styles.mapButtonText}>Setup Geofencing</Text>
-    </TouchableOpacity>
+
+      {/* FIXED NAVIGATION PATH HERE */}
+      <TouchableOpacity 
+        style={styles.mapButton} 
+        onPress={() => router.push("/geofencesetup")}
+      >
+        <Text style={styles.mapButtonText}>Next: Setup Geofencing</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -104,57 +98,24 @@ const styles = StyleSheet.create({
     borderRadius: 15, 
     marginBottom: 10, 
     flexDirection: 'row', 
-    justifyContent: 'space-between',
     alignItems: 'center',
   },
-  itemPhoto: {
-    width: 60,
-    height: 60,
-    borderRadius: 10,
-    marginRight: 15,
-  },
-  itemContent: {
-    flex: 1,
-    justifyContent: 'space-between',
-  },
+  itemPhoto: { width: 60, height: 60, borderRadius: 10, marginRight: 15 },
+  itemContent: { flex: 1, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   itemText: { color: 'white', fontSize: 18, fontWeight: '500' },
-  deleteBtn: {
-    padding: 8,
-    marginLeft: 10,
-  },
-  emptyContainer: {
-    padding: 30,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  emptyText: {
-    color: '#666',
-    fontSize: 16,
-  },
+  deleteBtn: { padding: 8, marginLeft: 10 },
+  emptyContainer: { padding: 30, alignItems: 'center' },
+  emptyText: { color: '#666', fontSize: 16 },
   addButton: {
     backgroundColor: '#2ECC71',
     padding: 15,
     borderRadius: 15,
     alignItems: 'center',
-    justifyContent: 'center',
     flexDirection: 'row',
     marginBottom: 10,
+    justifyContent: 'center'
   },
-  addButtonText: {
-    color: '#0A1A10',
-    fontWeight: 'bold',
-    fontSize: 16,
-    marginLeft: 8,
-  },
-  mapButton: { 
-    backgroundColor: '#2ECC71', 
-    padding: 20, 
-    borderRadius: 15, 
-    alignItems: 'center',
-  },
-  mapButtonText: { 
-    color: '#0A1A10', 
-    fontWeight: 'bold',
-    fontSize: 16,
-  }
+  addButtonText: { color: '#0A1A10', fontWeight: 'bold', fontSize: 16, marginLeft: 8 },
+  mapButton: { backgroundColor: '#2ECC71', padding: 20, borderRadius: 15, alignItems: 'center' },
+  mapButtonText: { color: '#0A1A10', fontWeight: 'bold', fontSize: 16 }
 });
