@@ -1,13 +1,16 @@
 import { ChecklistItem, checklistStore } from '@/src/store/checklistStore';
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Image, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function FinalHomeScreen() {
   const router = useRouter();
   const { noBack } = useLocalSearchParams();
   const [items, setItems] = useState<ChecklistItem[]>(checklistStore.getItems());
+  const [profilePicUri, setProfilePicUri] = useState<string | null>(null);
 
   useEffect(() => {
     // 1. Load saved data from phone storage on startup
@@ -25,6 +28,16 @@ export default function FinalHomeScreen() {
     });
     return unsubscribe;
   }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      const loadProfilePic = async () => {
+        const storedUri = await AsyncStorage.getItem('profilePicUri');
+        setProfilePicUri(storedUri);
+      };
+      loadProfilePic();
+    }, [])
+  );
 
   const totalCount = items.length;
   const nearbyCount = items.filter(i => i.active).length;
@@ -44,7 +57,13 @@ export default function FinalHomeScreen() {
             </View>
             <Text style={styles.logoText}>BeforeIGo</Text>
           </View>
-          <View style={styles.profileCircle} />
+          <TouchableOpacity onPress={() => router.push('/profile')} style={{ position: 'relative' }}>
+            {profilePicUri ? (
+              <Image source={{ uri: profilePicUri }} style={{ width: 45, height: 45, borderRadius: 22.5 }} />
+            ) : (
+              <View style={{ width: 45, height: 45, borderRadius: 22.5, backgroundColor: '#f0e0d0' }} />
+            )}
+          </TouchableOpacity>
         </View>
 
         <Text style={styles.mainTitle}>
@@ -124,7 +143,7 @@ export default function FinalHomeScreen() {
           <TabItem emoji="🏠" label="Home" active onPress={() => router.push('/home')} />
           <TabItem emoji="🗺️" label="Map" onPress={() => router.push('/geofencesetup')} />
           <TabItem emoji="📦" label="Items" onPress={() => router.push('/dashboard')} />
-          <TabItem emoji="👤" label="Profile" />
+            <TabItem emoji="👤" label="Profile" onPress={() => router.push('/profile')} />
         </View>
       </View>
     </SafeAreaView>
