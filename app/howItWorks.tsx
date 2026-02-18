@@ -1,9 +1,10 @@
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Image } from 'react-native';
-import { useRouter, Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function HowItWorks() {
   const router = useRouter();
+  const { from } = useLocalSearchParams();
 
   return (
     <View style={styles.container}>
@@ -56,7 +57,7 @@ export default function HowItWorks() {
         </View>
       </ScrollView>
 
-      <TouchableOpacity style={styles.startBtn} onPress={() => router.push('/setup' as any)}> 
+      <TouchableOpacity style={styles.startBtn} onPress={() => router.push(from === 'home' ? '/home' : '/setup' as any)}> 
         <View style={styles.btnNumber}><Text style={styles.numberText}>3</Text></View>
         <Text style={styles.startBtnText}>Got It, Let's Start</Text>
       </TouchableOpacity>

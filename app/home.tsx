@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, SafeAreaView } from 'react-native';
+import { ChecklistItem, checklistStore } from '@/src/store/checklistStore';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { checklistStore, ChecklistItem } from '@/src/store/checklistStore';
+import { useEffect, useState } from 'react';
+import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function FinalHomeScreen() {
   const router = useRouter();
@@ -105,7 +105,7 @@ export default function FinalHomeScreen() {
         {/* 4. MENU */}
         <Text style={styles.sectionLabel}>Menu</Text>
         <View style={styles.menuContainer}>
-          <MenuListItem icon="help-circle-outline" name="Help & Tutorials" sub="Learn how it works" />
+          <MenuListItem icon="help-circle-outline" name="Help & Tutorials" sub="Learn how it works" onPress={() => router.push('/howItWorks?from=home')} />
           <MenuListItem icon="settings-outline" name="Account Settings" sub="Manage your profile" border={false} />
         </View>
       </ScrollView>
@@ -118,9 +118,9 @@ export default function FinalHomeScreen() {
       {/* 5. TAB BAR */}
       <View style={styles.tabBarWrapper}>
         <View style={styles.tabBar}>
-          <TabItem emoji="🏠" label="Home" active />
-          <TabItem emoji="🗺️" label="Map" />
-          <TabItem emoji="📦" label="Items" />
+          <TabItem emoji="🏠" label="Home" active onPress={() => router.push('/home')} />
+          <TabItem emoji="🗺️" label="Map" onPress={() => router.push('/geofencesetup')} />
+          <TabItem emoji="📦" label="Items" onPress={() => router.push('/dashboard')} />
           <TabItem emoji="👤" label="Profile" />
         </View>
       </View>
@@ -150,8 +150,8 @@ const ItemRow = ({ emoji, name, status, statusColor }: any) => (
   </View>
 );
 
-const MenuListItem = ({ icon, name, sub, border = true }: any) => (
-  <TouchableOpacity style={[styles.menuRow, border && { borderBottomWidth: 1, borderBottomColor: '#f1f1f1' }]}>
+const MenuListItem = ({ icon, name, sub, border = true, onPress }: any) => (
+  <TouchableOpacity style={[styles.menuRow, border && { borderBottomWidth: 1, borderBottomColor: '#f1f1f1' }]} onPress={onPress}>
     <Ionicons name={icon} size={22} color="#555" style={{ marginRight: 15 }} />
     <View style={{ flex: 1 }}>
       <Text style={styles.menuText}>{name}</Text>
@@ -161,8 +161,8 @@ const MenuListItem = ({ icon, name, sub, border = true }: any) => (
   </TouchableOpacity>
 );
 
-const TabItem = ({ emoji, label, active = false }: any) => (
-  <TouchableOpacity style={styles.tabItem}>
+const TabItem = ({ emoji, label, active = false, onPress }: any) => (
+  <TouchableOpacity style={styles.tabItem} onPress={onPress}>
     <Text style={{ fontSize: 26, marginBottom: 4 }}>{emoji}</Text>
     <Text style={[styles.tabLabel, active && { color: '#2ECC71', fontWeight: 'bold' }]}>{label}</Text>
   </TouchableOpacity>
