@@ -1,6 +1,6 @@
 import { ChecklistItem, checklistStore } from '@/src/store/checklistStore';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
@@ -30,7 +30,9 @@ export default function FinalHomeScreen() {
   const awayCount = items.filter(i => !i.active && totalCount > 0).length; 
 
   return (
-    <SafeAreaView style={styles.container}>
+    <>
+      <Stack.Screen options={{ headerShown: false }} />
+      <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         
         {/* Header */}
@@ -125,6 +127,7 @@ export default function FinalHomeScreen() {
         </View>
       </View>
     </SafeAreaView>
+    </>
   );
 }
 
