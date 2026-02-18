@@ -2,7 +2,7 @@ import { ChecklistItem, checklistStore } from '@/src/store/checklistStore';
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function FinalHomeScreen() {
   const router = useRouter();
@@ -94,7 +94,7 @@ export default function FinalHomeScreen() {
           items.map((item) => (
             <ItemRow 
               key={item.id} 
-              emoji="📦" 
+              photoUri={item.photoUri} 
               name={item.name} 
               status={item.active ? "Nearby" : "Disabled"} 
               statusColor={item.active ? "#2ECC71" : "#999"} 
@@ -139,9 +139,11 @@ const StatBox = ({ count, label, color }: any) => (
   </View>
 );
 
-const ItemRow = ({ emoji, name, status, statusColor }: any) => (
+const ItemRow = ({ photoUri, name, status, statusColor }: any) => (
   <View style={styles.itemRow}>
-    <View style={styles.itemIconBg}><Text style={{ fontSize: 24 }}>{emoji}</Text></View>
+    <View style={styles.itemIconBg}>
+      <Image source={{ uri: photoUri }} style={styles.itemImage} />
+    </View>
     <View style={{ flex: 1 }}>
       <Text style={styles.itemName}>{name}</Text>
       <View style={[styles.itemStatusBadge, { backgroundColor: `${statusColor}20` }]}>
@@ -200,6 +202,7 @@ const styles = StyleSheet.create({
   statLabel: { fontSize: 14, color: '#95a5a6' },
   itemRow: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', padding: 18, borderRadius: 24, marginBottom: 12, borderWidth: 1, borderColor: '#f8f8f8' },
   itemIconBg: { width: 55, height: 55, borderRadius: 18, backgroundColor: '#f9f9f9', justifyContent: 'center', alignItems: 'center', marginRight: 15 },
+  itemImage: { width: '100%', height: '100%', borderRadius: 18 },
   itemName: { fontSize: 18, fontWeight: 'bold' },
   itemStatusBadge: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingVertical: 4, borderRadius: 12, marginTop: 5 },
   smallDot: { width: 8, height: 8, borderRadius: 4, marginRight: 6 },
