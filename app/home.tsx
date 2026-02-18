@@ -1,11 +1,12 @@
 import { ChecklistItem, checklistStore } from '@/src/store/checklistStore';
 import { Ionicons } from '@expo/vector-icons';
-import { Stack, useRouter } from 'expo-router';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Image, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function FinalHomeScreen() {
   const router = useRouter();
+  const { noBack } = useLocalSearchParams();
   const [items, setItems] = useState<ChecklistItem[]>(checklistStore.getItems());
 
   useEffect(() => {

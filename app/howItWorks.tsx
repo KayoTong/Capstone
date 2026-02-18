@@ -57,7 +57,7 @@ export default function HowItWorks() {
         </View>
       </ScrollView>
 
-      <TouchableOpacity style={styles.startBtn} onPress={() => router.replace(from === 'home' ? '/home' : '/setup' as any)}> 
+      <TouchableOpacity style={styles.startBtn} onPress={() => router.replace(from === 'home' ? '/home?noBack=true' : '/setup' as any)}> 
         <View style={styles.btnNumber}><Text style={styles.numberText}>3</Text></View>
         <Text style={styles.startBtnText}>Got It, Let's Start</Text>
       </TouchableOpacity>
