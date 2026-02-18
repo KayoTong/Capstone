@@ -6,13 +6,13 @@ import { Image, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, Vi
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 
-export default function FinalHomeScreen() {
+export default function FinalHomeScreen() { // Main home screen displaying user's item status overview, with navigation to profile, dashboard, and how it works sections
   const router = useRouter();
-  const { noBack } = useLocalSearchParams();
+  const { noBack } = useLocalSearchParams(); //   Check if we should disable back navigation (e.g., after signup)
   const [items, setItems] = useState<ChecklistItem[]>(checklistStore.getItems());
   const [profilePicUri, setProfilePicUri] = useState<string | null>(null);
 
-  useEffect(() => {
+  useEffect(() => { //    
     // 1. Load saved data from phone storage on startup
     const initStore = async () => {
       if (checklistStore.loadFromDisk) {
@@ -29,21 +29,21 @@ export default function FinalHomeScreen() {
     return unsubscribe;
   }, []);
 
-  useFocusEffect(
-    React.useCallback(() => {
-      const loadProfilePic = async () => {
+  useFocusEffect( // Refresh profile picture URI whenever the screen comes into focus (e.g., after updating profile picture)
+    React.useCallback(() => { // Refresh profile picture URI whenever the screen comes into focus (e.g., after updating profile picture)
+      const loadProfilePic = async () => { // 
         const storedUri = await AsyncStorage.getItem('profilePicUri');
-        setProfilePicUri(storedUri);
+        setProfilePicUri(storedUri); // Update state with the latest profile picture URI
       };
       loadProfilePic();
     }, [])
   );
 
-  const totalCount = items.length;
-  const nearbyCount = items.filter(i => i.active).length;
-  const awayCount = items.filter(i => !i.active && totalCount > 0).length; 
+  const totalCount = items.length; //   Calculate total count of items, nearby (active) items, and away (inactive) items for display in the overview section
+  const nearbyCount = items.filter(i => i.active).length; // Count of active items (considered "nearby")
+  const awayCount = items.filter(i => !i.active && totalCount > 0).length;  // Count of inactive items (considered "away"), only show if there are items in total
 
-  return (
+  return ( // Main home screen displaying user's item status overview, with navigation to profile, dashboard, and how it works sections
     <>
       <Stack.Screen options={{ headerShown: false }} />
       <SafeAreaView style={styles.container}>

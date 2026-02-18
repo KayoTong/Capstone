@@ -5,17 +5,17 @@ import { auth } from '../firebaseConfig';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 import { Ionicons } from '@expo/vector-icons';
 
-export default function LoginScreen() {
+export default function LoginScreen() { // Main login/signup screen for user authentication
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const handleAuth = async (type: 'login' | 'signup') => {
+  const handleAuth = async (type: 'login' | 'signup') => {  // Handle both login and signup logic based on the type parameter
     if (!email || !password) return Alert.alert("Required", "Please enter email and password.");
     setLoading(true);
     try {
-      if (type === 'login') {
+      if (type === 'login') { // Attempt to sign in the user with Firebase authentication
         await signInWithEmailAndPassword(auth, email, password);
         router.replace('/home'); 
       } else {
@@ -29,7 +29,7 @@ export default function LoginScreen() {
     }
   };
 
-  return (
+  return ( // Main UI for login screen with inputs for email and password, and buttons for login and signup actions
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
       

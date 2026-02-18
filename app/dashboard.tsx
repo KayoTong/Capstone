@@ -4,11 +4,11 @@ import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Alert, FlatList, Image, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
 
-export default function PortableEssentials() {
+export default function PortableEssentials() { // Main dashboard screen displaying user's checklist of portable essentials with options to toggle, delete, and navigate to add items or geofence setup
   const router = useRouter();
   const [items, setItems] = useState<ChecklistItem[]>(checklistStore.getItems());
 
-  useEffect(() => {
+  useEffect(() => { // Subscribe to store changes to keep UI in sync
     // Subscribe to store changes to keep UI in sync
     const unsubscribe = checklistStore.subscribe(() => {
       setItems([...checklistStore.getItems()]);
@@ -16,12 +16,12 @@ export default function PortableEssentials() {
     return unsubscribe;
   }, []);
 
-  const handleToggle = (id: string) => {
+  const handleToggle = (id: string) => { // Toggle the active state of an item in the checklist
     checklistStore.toggleItem(id);
   };
 
-  const handleDelete = (id: string, itemName: string) => {
-    Alert.alert(
+  const handleDelete = (id: string, itemName: string) => { // Show confirmation alert before deleting an item from the checklist
+    Alert.alert( // Show confirmation alert before deleting an item from the checklist
       "Delete Item",
       `Are you sure you want to delete "${itemName}"?`,
       [
@@ -35,7 +35,7 @@ export default function PortableEssentials() {
     );
   };
 
-  return (
+  return ( // Main dashboard screen displaying user's checklist of portable essentials with options to toggle, delete, and navigate to add items or geofence setup
     <View style={styles.container}>
       <Text style={styles.titleText}>Portable Essentials</Text>
       
@@ -55,7 +55,7 @@ export default function PortableEssentials() {
                 trackColor={{ false: "#333", true: "#2ECC71" }} 
               />
             </View>
-            <TouchableOpacity
+            <TouchableOpacity 
               onPress={() => handleDelete(item.id, item.name)}
               style={styles.deleteBtn}
             >

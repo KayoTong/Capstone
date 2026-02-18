@@ -12,28 +12,28 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import MapView, { Circle, Marker } from "react-native-maps";
+import MapView, { Circle, Marker } from "react-native-maps"; // 
 
-export default function GeofenceSetup() {
+export default function GeofenceSetup() { // Main setup screen for geofence configuration
   const router = useRouter(); 
   const DEFAULT_RADIUS = 150;
   
-  type MapRegion = {
+  type MapRegion = { // Type for map region state
     latitude: number;
     longitude: number;
     latitudeDelta: number;
     longitudeDelta: number;
   };
 
-  const [region, setRegion] = useState<MapRegion | null>(null);
+  const [region, setRegion] = useState<MapRegion | null>(null); // User's current location for map centering
   const [radius, setRadius] = useState(DEFAULT_RADIUS);
   const [enabled, setEnabled] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  useEffect(() => { 
     (async () => {
       try {
-        const { granted } = await Location.requestForegroundPermissionsAsync();
+        const { granted } = await Location.requestForegroundPermissionsAsync(); // Request location permissions
         if (!granted) {
           Alert.alert("Permission Denied", "Location access is needed for geofencing.");
           setLoading(false);
@@ -51,7 +51,7 @@ export default function GeofenceSetup() {
         }
 
         if (loc) {
-          setRegion({
+          setRegion({ // Center map on user's location
             latitude: loc.coords.latitude,
             longitude: loc.coords.longitude,
             latitudeDelta: 0.01,
@@ -66,8 +66,8 @@ export default function GeofenceSetup() {
     })();
   }, []);
 
-  async function handleSave() {
-    if (!region) return;
+  async function handleSave() { // Save geofence settings
+    if (!region) return; // Safety check
     try {
       await saveGeofence({
         enabled,

@@ -7,20 +7,20 @@ import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
 import { EmailAuthProvider, reauthenticateWithCredential, updatePassword, updateEmail } from 'firebase/auth';
 
-export default function ProfileScreen() {
+export default function ProfileScreen() { // Main profile screen for user settings and profile picture management
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [currentPassword, setCurrentPassword] = useState('');
   const [profilePicUri, setProfilePicUri] = useState<string | null>(null);
 
-  useEffect(() => {
+  useEffect(() => { // Load user profile data on component mount
     const loadProfile = async () => {
       const user = auth.currentUser;
       if (user) {
         setEmail(user.email || '');
       }
-      const storedUri = await AsyncStorage.getItem('profilePicUri');
+      const storedUri = await AsyncStorage.getItem('profilePicUri'); // Load profile picture URI from storage 
       if (storedUri) {
         setProfilePicUri(storedUri);
       }
@@ -28,28 +28,28 @@ export default function ProfileScreen() {
     loadProfile();
   }, []);
 
-  const pickImage = async () => {
+  const pickImage = async () => { // Handle profile picture selection and storage
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (permissionResult.granted === false) {
       Alert.alert('Permission required', 'Permission to access camera roll is required!');
       return;
     }
 
-    const result = await ImagePicker.launchImageLibraryAsync({
+    const result = await ImagePicker.launchImageLibraryAsync({ // Open image picker
       mediaTypes: ['images'],
       allowsEditing: true,
       aspect: [1, 1],
       quality: 1,
     });
 
-    if (!result.canceled) {
+    if (!result.canceled) { // If user selected an image, save its URI to state and storage
       const uri = result.assets[0].uri;
       setProfilePicUri(uri);
       await AsyncStorage.setItem('profilePicUri', uri);
     }
   };
 
-  const updateEmailHandler = async () => {
+  const updateEmailHandler = async () => { // Handle email update with Firebase authentication
     if (!email) return;
     try {
       const user = auth.currentUser;
@@ -64,13 +64,13 @@ export default function ProfileScreen() {
     }
   };
 
-  const updatePasswordHandler = async () => {
+  const updatePasswordHandler = async () => { // Handle password update with reauthentication for security
     if (!password || !currentPassword) {
       Alert.alert('Error', 'Please enter both current and new password');
       return;
     }
     try {
-      const user = auth.currentUser;
+      const user = auth.currentUser; 
       if (!user || !user.email) {
         Alert.alert('Error', 'User not found');
         return;
@@ -90,7 +90,7 @@ export default function ProfileScreen() {
     }
   };
 
-  return (
+  return ( // Main UI for profile screen with sections for profile picture, email, and password management
     <ScrollView style={{ flex: 1, backgroundColor: '#fff', padding: 20 }}>
       <Stack.Screen options={{ title: 'Profile', headerLeft: () => (
         <TouchableOpacity onPress={() => router.back()} style={{ marginLeft: 10 }}>
