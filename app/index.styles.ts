@@ -1,0 +1,68 @@
+import { StyleSheet } from "react-native";
+
+export const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#050c08",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: 80,
+  },
+  visualContainer: { alignItems: "center", width: "100%" },
+  waveOuter: {
+    marginTop: 40,
+    padding: 20,
+    borderRadius: 120,
+    borderWidth: 1,
+    borderColor: "rgba(46, 204, 113, 0.15)",
+  },
+  waveInner: {
+    padding: 15,
+    borderRadius: 100,
+    borderWidth: 2,
+    borderColor: "rgba(46, 204, 113, 0.3)",
+  },
+  iconCircle: { // This helps style the icon circle
+    width: 80,
+    height: 80,
+    borderRadius: 20,
+    backgroundColor: "#111d15",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  bellCircle: { width: 140, height: 140, borderRadius: 70, marginBottom: 0 },
+  checkBadge: {
+    position: "absolute",
+    top: 15,
+    right: 15,
+    backgroundColor: "#2ECC71",
+    borderRadius: 12,
+    padding: 3,
+    borderWidth: 2,
+    borderColor: "#050c08",
+  },
+  logoText: { color: "white", fontSize: 52, fontWeight: "bold" },
+  tagline: {
+    color: "#888",
+    fontSize: 18,
+    textAlign: "center",
+    marginTop: 10,
+    paddingHorizontal: 40,
+  },
+  footer: { width: "100%", paddingHorizontal: 30 },
+  getStartedBtn: {
+    backgroundColor: "#2ECC71",
+    padding: 22,
+    borderRadius: 25,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  getStartedText: {
+    color: "#0A1A10",
+    fontSize: 20,
+    fontWeight: "bold",
+    marginRight: 10,
+  },
+});
