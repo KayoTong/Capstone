@@ -1,7 +1,7 @@
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Stack, useRouter } from "expo-router";
-import { styles } from "./index.styles";
+import { styles } from "./styles/index.styles";
 import {
   StatusBar,
   Text,

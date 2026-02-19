@@ -4,7 +4,7 @@ import { useRouter, Stack } from 'expo-router';
 import { auth } from '../firebaseConfig';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 import { Ionicons } from '@expo/vector-icons';
-import {styles} from './login.styles'; // Assuming you have a separate styles file for the login screen
+import {styles} from './styles/login.styles'; // Assuming you have a separate styles file for the login screen
 export default function LoginScreen() { // Main login/signup screen for user authentication
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
