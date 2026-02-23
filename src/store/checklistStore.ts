@@ -52,6 +52,15 @@ export const checklistStore = {
     await checklistStore.saveToDisk(); // Auto-save
     notifyListeners();
   },
+
+  // NEW: Update item name
+  updateItem: async (id: string, newName: string) => {
+    items = items.map((item) =>
+      item.id === id ? { ...item, name: newName } : item
+    );
+    await checklistStore.saveToDisk(); // Auto-save
+    notifyListeners();
+  },
   
   toggleItem: async (id: string) => {
     items = items.map((item) =>
