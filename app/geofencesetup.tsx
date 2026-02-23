@@ -1,49 +1,47 @@
 import { saveGeofence } from "@/storage/geofence";
 import Slider from "@react-native-community/slider";
 import * as Location from "expo-location";
-import { useRouter } from 'expo-router'; 
+import { Stack, useRouter } from 'expo-router'; // Added Stack
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
+  SafeAreaView, // Added SafeAreaView
   Switch,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
 import { styles } from "./styles/geofencesetup.styles";
-import MapView, { Circle, Marker } from "react-native-maps"; // 
+import MapView, { Circle, Marker } from "react-native-maps";
 
-export default function GeofenceSetup() { // Main setup screen for geofence configuration
-  const router = useRouter(); 
+export default function GeofenceSetup() {
+  const router = useRouter();
   const DEFAULT_RADIUS = 150;
-  
-  type MapRegion = { // Type for map region state
+
+  type MapRegion = {
     latitude: number;
     longitude: number;
     latitudeDelta: number;
     longitudeDelta: number;
   };
 
-  const [region, setRegion] = useState<MapRegion | null>(null); // User's current location for map centering
+  const [region, setRegion] = useState<MapRegion | null>(null);
   const [radius, setRadius] = useState(DEFAULT_RADIUS);
   const [enabled, setEnabled] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => { 
+  useEffect(() => {
     (async () => {
       try {
-        const { granted } = await Location.requestForegroundPermissionsAsync(); // Request location permissions
+        const { granted } = await Location.requestForegroundPermissionsAsync();
         if (!granted) {
           Alert.alert("Permission Denied", "Location access is needed for geofencing.");
           setLoading(false);
           return;
         }
 
-        // Fast fetch using last known position
         let loc = await Location.getLastKnownPositionAsync({});
-
-        // Fallback to live GPS if cache is empty
         if (!loc) {
           loc = await Location.getCurrentPositionAsync({
             accuracy: Location.Accuracy.Balanced,
@@ -51,7 +49,7 @@ export default function GeofenceSetup() { // Main setup screen for geofence conf
         }
 
         if (loc) {
-          setRegion({ // Center map on user's location
+          setRegion({
             latitude: loc.coords.latitude,
             longitude: loc.coords.longitude,
             latitudeDelta: 0.01,
@@ -59,15 +57,15 @@ export default function GeofenceSetup() { // Main setup screen for geofence conf
           });
         }
       } catch (error) {
-        Alert.alert("Location Error", "Could not determine your current position. Ensure GPS is on.");
+        Alert.alert("Location Error", "Could not determine your current position.");
       } finally {
         setLoading(false);
       }
     })();
   }, []);
 
-  async function handleSave() { // Save geofence settings
-    if (!region) return; // Safety check
+  async function handleSave() {
+    if (!region) return;
     try {
       await saveGeofence({
         enabled,
@@ -76,70 +74,75 @@ export default function GeofenceSetup() { // Main setup screen for geofence conf
         radiusMeters: radius,
       });
 
-      // REDIRECT: Go straight to the white Main Homepage (home.tsx)
-      router.replace("/home" as any); 
-      
+      router.replace("/home" as any);
     } catch (e) {
       Alert.alert("Error", "Failed to save geofence.");
     }
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>BeforeIGo Setup</Text>
+    <>
+      {/* This removes the white header bar */}
+      <Stack.Screen options={{ headerShown: false }} />
 
-      {loading ? (
-        <View style={styles.loadingBox}>
-          <ActivityIndicator size="large" color="#00ff88" />
-          <Text style={{ color: "#aaa", marginTop: 10 }}>Locating your home...</Text>
-        </View>
-      ) : region ? (
-        <MapView style={styles.map} initialRegion={region}>
-          <Marker coordinate={region} />
-          <Circle
-            center={region}
-            radius={radius}
-            strokeColor="rgba(0,255,0,0.8)"
-            fillColor="rgba(0,255,0,0.2)"
+      {/* SafeAreaView ensures content stays below the status bar/notch */}
+      <SafeAreaView style={[styles.container, { backgroundColor: '#000' }]}>
+        <View style={{ flex: 1, paddingHorizontal: 20 }}>
+          <Text style={styles.title}>BeforeIGo Setup</Text>
+
+          {loading ? (
+            <View style={styles.loadingBox}>
+              <ActivityIndicator size="large" color="#00ff88" />
+              <Text style={{ color: "#aaa", marginTop: 10 }}>Locating your home...</Text>
+            </View>
+          ) : region ? (
+            <MapView style={styles.map} initialRegion={region}>
+              <Marker coordinate={region} />
+              <Circle
+                center={region}
+                radius={radius}
+                strokeColor="rgba(0,255,0,0.8)"
+                fillColor="rgba(0,255,0,0.2)"
+              />
+            </MapView>
+          ) : (
+            <View style={styles.loadingBox}>
+              <Text style={{ color: "#ff6b6b" }}>Map unavailable. Check GPS.</Text>
+            </View>
+          )}
+
+          <Text style={styles.label}>Detection Radius</Text>
+          <Text style={styles.radiusText}>{radius} meters</Text>
+
+          <Slider
+            style={{ width: "100%", height: 40 }}
+            minimumValue={50}
+            maximumValue={500}
+            step={25}
+            value={radius}
+            onValueChange={setRadius}
+            minimumTrackTintColor="#00ff88"
+            maximumTrackTintColor="#333"
+            thumbTintColor="#00ff88"
           />
-        </MapView>
-      ) : (
-        <View style={styles.loadingBox}>
-          <Text style={{ color: "#ff6b6b" }}>Map unavailable. Check GPS.</Text>
+
+          <View style={styles.toggleRow}>
+            <View>
+              <Text style={styles.label}>Enable Geofencing</Text>
+              <Text style={{ color: "#666", fontSize: 12 }}>Alert when leaving this area</Text>
+            </View>
+            <Switch
+              value={enabled}
+              onValueChange={setEnabled}
+              trackColor={{ false: "#333", true: "#00ff88" }}
+            />
+          </View>
+
+          <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+            <Text style={styles.saveText}>Save & Activate</Text>
+          </TouchableOpacity>
         </View>
-      )}
-
-      <Text style={styles.label}>Detection Radius</Text>
-      <Text style={styles.radiusText}>{radius} meters</Text>
-
-      <Slider
-        style={{ width: "100%", height: 40 }}
-        minimumValue={50}
-        maximumValue={500}
-        step={25}
-        value={radius}
-        onValueChange={setRadius}
-        minimumTrackTintColor="#00ff88"
-        maximumTrackTintColor="#333"
-        thumbTintColor="#00ff88"
-      />
-
-      <View style={styles.toggleRow}>
-        <View>
-          <Text style={styles.label}>Enable Geofencing</Text>
-          <Text style={{ color: "#666", fontSize: 12 }}>Alert when leaving this area</Text>
-        </View>
-        <Switch
-          value={enabled}
-          onValueChange={setEnabled}
-          trackColor={{ false: "#333", true: "#00ff88" }}
-        />
-      </View>
-
-      <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-        <Text style={styles.saveText}>Save & Activate</Text>
-      </TouchableOpacity>
-    </View>
+      </SafeAreaView>
+    </>
   );
 }
-
