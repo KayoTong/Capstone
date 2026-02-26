@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
-import { styles } from "./styles/howitWorks.styles";
+import { styles } from "./_styles/howitWorks.styles";
 
 export default function HowItWorks() {
   const router = useRouter();

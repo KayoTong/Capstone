@@ -10,7 +10,7 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
-import { styles } from "./styles/addItem.styles"; // import styles for the AddItem component
+import { styles } from "./_styles/addItem.styles"; // import styles for the AddItem component
 
 export default function AddItem() {
   const router = useRouter();

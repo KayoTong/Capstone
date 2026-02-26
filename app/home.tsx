@@ -4,8 +4,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { Image, SafeAreaView, ScrollView, Text, TouchableOpacity, View } from 'react-native';
-import { styles } from "./styles/Home.styles";
+import { Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { styles } from "./_styles/Home.styles";
 
 export default function FinalHomeScreen() { // Main home screen displaying user's item status overview, with navigation to profile, dashboard, and how it works sections
   const router = useRouter();

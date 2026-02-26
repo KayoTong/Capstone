@@ -5,17 +5,18 @@ import { useEffect, useState } from 'react';
 import {
     Dimensions // Added to handle full-screen sizing
     ,
+
     FlatList,
     Image,
     Modal,
-    SafeAreaView,
     Switch,
     Text,
     TextInput,
     TouchableOpacity,
     View
 } from 'react-native';
-import { styles } from "./styles/dashboard.styles";
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { styles } from "./_styles/dashboard.styles";
 
 const { width, height } = Dimensions.get('window');
 

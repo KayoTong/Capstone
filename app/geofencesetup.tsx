@@ -7,14 +7,14 @@ import { useEffect, useState } from "react";
 import {
     ActivityIndicator,
     Alert,
-    SafeAreaView, // Added SafeAreaView
     Switch,
     Text,
     TouchableOpacity,
     View,
 } from "react-native";
 import MapView, { Circle, Marker } from "react-native-maps";
-import { styles } from "./styles/geofencesetup.styles";
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { styles } from "./_styles/geofencesetup.styles";
 
 export default function GeofenceSetup() {
   const router = useRouter();

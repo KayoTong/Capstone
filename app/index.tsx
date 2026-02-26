@@ -1,13 +1,13 @@
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Stack, useRouter } from "expo-router";
-import { styles } from "./styles/index.styles";
 import {
-  StatusBar,
-  Text,
-  TouchableOpacity,
-  View
+    StatusBar,
+    Text,
+    TouchableOpacity,
+    View
 } from "react-native";
+import { styles } from "./_styles/index.styles";
 
 export default function WelcomeScreen() {
   const router = useRouter();
