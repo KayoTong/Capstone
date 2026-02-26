@@ -1,19 +1,20 @@
 import { saveGeofence } from "@/storage/geofence";
+import { Ionicons } from "@expo/vector-icons";
 import Slider from "@react-native-community/slider";
 import * as Location from "expo-location";
 import { Stack, useRouter } from 'expo-router'; // Added Stack
 import { useEffect, useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  SafeAreaView, // Added SafeAreaView
-  Switch,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Alert,
+    SafeAreaView, // Added SafeAreaView
+    Switch,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
-import { styles } from "./styles/geofencesetup.styles";
 import MapView, { Circle, Marker } from "react-native-maps";
+import { styles } from "./styles/geofencesetup.styles";
 
 export default function GeofenceSetup() {
   const router = useRouter();
@@ -88,7 +89,12 @@ export default function GeofenceSetup() {
       {/* SafeAreaView ensures content stays below the status bar/notch */}
       <SafeAreaView style={[styles.container, { backgroundColor: '#000' }]}>
         <View style={{ flex: 1, paddingHorizontal: 20 }}>
-          <Text style={styles.title}>BeforeIGo Setup</Text>
+          <View style={styles.header}>
+            <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+              <Ionicons name="arrow-back" size={24} color="white" />
+            </TouchableOpacity>
+            <Text style={styles.title}>BeforeIGo Setup</Text>
+          </View>
 
           {loading ? (
             <View style={styles.loadingBox}>

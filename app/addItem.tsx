@@ -4,11 +4,11 @@ import { CameraView, useCameraPermissions } from "expo-camera"; // we are adding
 import { useRouter } from "expo-router";
 import { useRef, useState } from "react"; // we will use useRef to reference the camera component and useState to manage state
 import {
-  Image,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    Image,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { styles } from "./styles/addItem.styles"; // import styles for the AddItem component
 
@@ -101,7 +101,7 @@ export default function AddItem() {
         onPress={() => {
           if (itemName.trim() && photoUri) {
             checklistStore.addItem(itemName, photoUri);
-            router.push("/dashboard");
+            router.push("/geofencesetup");
           }
         }}
       >

@@ -1,10 +1,10 @@
 import { ChecklistItem, checklistStore } from '@/src/store/checklistStore';
 import { Ionicons } from '@expo/vector-icons';
-import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
-import { Image, SafeAreaView, ScrollView,  Text, TouchableOpacity, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import { Image, SafeAreaView, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { styles } from "./styles/Home.styles";
 
 export default function FinalHomeScreen() { // Main home screen displaying user's item status overview, with navigation to profile, dashboard, and how it works sections
@@ -141,7 +141,7 @@ export default function FinalHomeScreen() { // Main home screen displaying user'
       {/* 5. TAB BAR */}
       <View style={styles.tabBarWrapper}>
         <View style={styles.tabBar}>
-          <TabItem emoji="🏠" label="Home" active onPress={() => router.push('/home')} />
+          <TabItem emoji="🏠" label="Home" active onPress={undefined} />
           <TabItem emoji="🗺️" label="Map" onPress={() => router.push('/geofencesetup')} />
           <TabItem emoji="📦" label="Items" onPress={() => router.push('/dashboard')} />
             <TabItem emoji="👤" label="Profile" onPress={() => router.push('/profile')} />

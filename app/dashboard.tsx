@@ -2,18 +2,18 @@ import { ChecklistItem, checklistStore } from '@/src/store/checklistStore';
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { 
-  Alert, 
-  FlatList, 
-  Image, 
-  SafeAreaView, 
-  Switch, 
-  Text, 
-  TouchableOpacity, 
-  View, 
-  Modal, 
-  TextInput,
-  Dimensions // Added to handle full-screen sizing
+import {
+    Dimensions // Added to handle full-screen sizing
+    ,
+    FlatList,
+    Image,
+    Modal,
+    SafeAreaView,
+    Switch,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from 'react-native';
 import { styles } from "./styles/dashboard.styles";
 
@@ -62,7 +62,12 @@ export default function PortableEssentials() {
 
       <SafeAreaView style={styles.container}>
         <View style={{ flex: 1 }}>
-          <Text style={styles.titleText}>Portable Essentials</Text>
+          <View style={styles.header}>
+            <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+              <Ionicons name="arrow-back" size={24} color="white" />
+            </TouchableOpacity>
+            <Text style={styles.titleText}>Portable Essentials</Text>
+          </View>
           
           <FlatList
             data={items}

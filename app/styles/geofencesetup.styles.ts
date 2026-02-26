@@ -2,7 +2,9 @@ import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#0b0f0c", padding: 16, paddingTop: 50 },
-  title: { color: "#fff", fontSize: 24, fontWeight: "bold", marginBottom: 20 },
+  header: { flexDirection: 'row', alignItems: 'center', marginBottom: 20 },
+  backButton: { marginRight: 15 },
+  title: { color: "#fff", fontSize: 24, fontWeight: "bold" },
   map: { height: 300, borderRadius: 20, marginBottom: 16 },
   loadingBox: { height: 300, justifyContent: "center", alignItems: "center", backgroundColor: "#111", borderRadius: 20, marginBottom: 16 },
   label: { color: "#fff", fontSize: 16, fontWeight: "500" },

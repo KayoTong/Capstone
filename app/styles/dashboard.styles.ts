@@ -2,7 +2,9 @@ import { StyleSheet } from 'react-native';
 
 export const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#050c08', padding: 25, paddingTop: 60 },
-  titleText: { color: 'white', fontSize: 28, fontWeight: 'bold', marginBottom: 20 },
+  header: { flexDirection: 'row', alignItems: 'center', marginBottom: 20 },
+  backButton: { marginRight: 15 },
+  titleText: { color: 'white', fontSize: 28, fontWeight: 'bold' },
   itemCard: { 
     backgroundColor: '#111d15', 
     padding: 15, 

@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert, Image, ScrollView } from 'react-native';
-import { useRouter, Stack } from 'expo-router';
-import { auth } from '../firebaseConfig';
+import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
-import { Ionicons } from '@expo/vector-icons';
-import { EmailAuthProvider, reauthenticateWithCredential, updatePassword, updateEmail } from 'firebase/auth';
+import { Stack, useRouter } from 'expo-router';
+import { EmailAuthProvider, reauthenticateWithCredential, updateEmail, updatePassword } from 'firebase/auth';
+import { useEffect, useState } from 'react';
+import { Alert, Image, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { auth } from '../firebaseConfig';
 
 export default function ProfileScreen() { // Main profile screen for user settings and profile picture management
   const router = useRouter();
@@ -91,14 +91,15 @@ export default function ProfileScreen() { // Main profile screen for user settin
   };
 
   return ( // Main UI for profile screen with sections for profile picture, email, and password management
-    <ScrollView style={{ flex: 1, backgroundColor: '#fff', padding: 20 }}>
-      <Stack.Screen options={{ title: 'Profile', headerLeft: () => (
-        <TouchableOpacity onPress={() => router.back()} style={{ marginLeft: 10 }}>
+    <ScrollView style={{ flex: 1, backgroundColor: '#fff', padding: 20, paddingTop: 60 }}>
+      <Stack.Screen options={{ headerShown: false }} />
+      
+      <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 20 }}>
+        <TouchableOpacity onPress={() => router.back()} style={{ marginRight: 15 }}>
           <Ionicons name="arrow-back" size={24} color="#000" />
         </TouchableOpacity>
-      ) }} />
-      
-      <Text style={{ fontSize: 24, fontWeight: 'bold', marginBottom: 20 }}>Profile Settings</Text>
+        <Text style={{ fontSize: 24, fontWeight: 'bold' }}>Profile Settings</Text>
+      </View>
 
       {/* Profile Picture */}
       <View style={{ alignItems: 'center', marginBottom: 30 }}>
