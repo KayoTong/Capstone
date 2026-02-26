@@ -14,7 +14,7 @@ import {
 } from "react-native";
 import MapView, { Circle, Marker } from "react-native-maps";
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { styles } from "./_styles/geofencesetup.styles";
+import { styles } from "../src/styles/geofencesetup.styles";
 
 export default function GeofenceSetup() {
   const router = useRouter();

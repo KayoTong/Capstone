@@ -6,6 +6,7 @@ import {
     Dimensions // Added to handle full-screen sizing
     ,
 
+
     FlatList,
     Image,
     Modal,
@@ -16,7 +17,7 @@ import {
     View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { styles } from "./_styles/dashboard.styles";
+import { styles } from "../src/styles/dashboard.styles";
 
 const { width, height } = Dimensions.get('window');
 

@@ -7,7 +7,7 @@ import {
     TouchableOpacity,
     View
 } from "react-native";
-import { styles } from "./_styles/index.styles";
+import { styles } from "../src/styles/index.styles";
 
 export default function WelcomeScreen() {
   const router = useRouter();

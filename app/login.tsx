@@ -4,7 +4,7 @@ import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'fire
 import { useState } from 'react';
 import { Alert, KeyboardAvoidingView, Platform, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { auth } from '../firebaseConfig';
-import { styles } from './_styles/login.styles'; // Assuming you have a separate styles file for the login screen
+import { styles } from '../src/styles/login.styles'; // Assuming you have a separate styles file for the login screen
 export default function LoginScreen() { // Main login/signup screen for user authentication
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

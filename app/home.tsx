@@ -6,7 +6,7 @@ import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { styles } from "./_styles/Home.styles";
+import { styles } from "../src/styles/Home.styles";
 
 export default function FinalHomeScreen() { // Main home screen displaying user's item status overview, with navigation to profile, dashboard, and how it works sections
   const router = useRouter();
