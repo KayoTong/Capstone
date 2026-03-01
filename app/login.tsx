@@ -1,10 +1,10 @@
+import { checklistStore } from '@/src/store/checklistStore';
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 import { useState } from 'react';
 import { Alert, KeyboardAvoidingView, Platform, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { auth } from '../firebaseConfig';
-import { checklistStore } from '../src/store/checklistStore';
 import { styles } from '../src/styles/login.styles'; // Assuming you have a separate styles file for the login screen
 export default function LoginScreen() { // Main login/signup screen for user authentication
   const [email, setEmail] = useState('');

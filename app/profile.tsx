@@ -1,3 +1,4 @@
+import { checklistStore } from '@/src/store/checklistStore';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
@@ -6,7 +7,6 @@ import { EmailAuthProvider, reauthenticateWithCredential, updateEmail, updatePas
 import { useEffect, useState } from 'react';
 import { Alert, Image, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { auth } from '../firebaseConfig';
-import { checklistStore } from '../src/store/checklistStore';
 
 export default function ProfileScreen() { // Main profile screen for user settings and profile picture management
   const router = useRouter();
