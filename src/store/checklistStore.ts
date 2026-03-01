@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { auth } from '../../firebaseConfig';
 
 export type ChecklistItem = {
   id: string;
@@ -7,18 +8,29 @@ export type ChecklistItem = {
   active: boolean;
 };
 
+// helper to derive storage key for current user (or anonymous)
+function getKey(uid?: string) {
+  const id = uid || auth.currentUser?.uid || 'anon';
+  return `beforeigo_items_${id}`;
+}
+
 let items: ChecklistItem[] = [];
 let listeners: (() => void)[] = [];
 
 export const checklistStore = {
   getItems: () => items,
   
-  // Load data from phone storage
-  loadFromDisk: async () => {
+  // Load data from phone storage for a specific user (current auth by default)
+  loadFromDisk: async (uid?: string) => {
     try {
-      const data = await AsyncStorage.getItem('beforeigo_items');
+      const key = getKey(uid);
+      const data = await AsyncStorage.getItem(key);
       if (data) {
         items = JSON.parse(data);
+        notifyListeners();
+      } else {
+        // no data for this user yet -> reset
+        items = [];
         notifyListeners();
       }
     } catch (e) {
@@ -26,10 +38,11 @@ export const checklistStore = {
     }
   },
 
-  // Save data to phone storage
-  saveToDisk: async () => {
+  // Save data to phone storage for the current user
+  saveToDisk: async (uid?: string) => {
     try {
-      await AsyncStorage.setItem('beforeigo_items', JSON.stringify(items));
+      const key = getKey(uid);
+      await AsyncStorage.setItem(key, JSON.stringify(items));
     } catch (e) {
       console.error("Failed to save items", e);
     }
@@ -43,7 +56,7 @@ export const checklistStore = {
       active: true,
     };
     items.push(newItem);
-    await checklistStore.saveToDisk(); // Auto-save
+    await checklistStore.saveToDisk(); // Auto-save for current user
     notifyListeners();
   },
   
@@ -75,6 +88,18 @@ export const checklistStore = {
     return () => {
       listeners = listeners.filter((l) => l !== listener);
     };
+  },
+
+  // clear in-memory and disk data for current user (useful on logout)
+  clear: async (uid?: string) => {
+    items = [];
+    notifyListeners();
+    try {
+      const key = getKey(uid);
+      await AsyncStorage.removeItem(key);
+    } catch (e) {
+      console.error('Failed to clear items', e);
+    }
   },
 };
 

@@ -4,6 +4,7 @@ import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'fire
 import { useState } from 'react';
 import { Alert, KeyboardAvoidingView, Platform, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { auth } from '../firebaseConfig';
+import { checklistStore } from '../src/store/checklistStore';
 import { styles } from '../src/styles/login.styles'; // Assuming you have a separate styles file for the login screen
 export default function LoginScreen() { // Main login/signup screen for user authentication
   const [email, setEmail] = useState('');
@@ -16,10 +17,14 @@ export default function LoginScreen() { // Main login/signup screen for user aut
     setLoading(true);
     try {
       if (type === 'login') { // Attempt to sign in the user with Firebase authentication
-        await signInWithEmailAndPassword(auth, email, password);
+        const cred = await signInWithEmailAndPassword(auth, email, password);
+        // reload data for this user
+        await checklistStore.loadFromDisk(cred.user.uid);
         router.replace('/home'); 
       } else {
-        await createUserWithEmailAndPassword(auth, email, password);
+        const cred = await createUserWithEmailAndPassword(auth, email, password);
+        // new user – nothing stored yet, but clear any anonymous data
+        await checklistStore.clear(cred.user.uid);
         router.push('/howItWorks'); 
       }
     } catch (error: any) {

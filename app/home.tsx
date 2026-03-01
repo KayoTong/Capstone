@@ -7,6 +7,8 @@ import React, { useEffect, useState } from 'react';
 import { Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { styles } from "../src/styles/Home.styles";
+import { auth, } from '../firebaseConfig';
+import { onAuthStateChanged } from 'firebase/auth';
 
 export default function FinalHomeScreen() { // Main home screen displaying user's item status overview, with navigation to profile, dashboard, and how it works sections
   const router = useRouter();
@@ -14,32 +16,48 @@ export default function FinalHomeScreen() { // Main home screen displaying user'
   const [items, setItems] = useState<ChecklistItem[]>(checklistStore.getItems());
   const [profilePicUri, setProfilePicUri] = useState<string | null>(null);
 
-  useEffect(() => { //    
-    // 1. Load saved data from phone storage on startup
-    const initStore = async () => {
-      if (checklistStore.loadFromDisk) {
-        await checklistStore.loadFromDisk();
-        setItems([...checklistStore.getItems()]);
-      }
-    };
-    initStore();
+  // helper to generate per-user key for profile image
+  const profileKey = (uid?: string) => `profilePicUri_${uid || auth.currentUser?.uid || 'anon'}`;
 
-    // 2. Subscribe to any future changes
+  useEffect(() => {
+    // whenever the authenticated user changes we need to reload the data
+    const unregisterAuth = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        await checklistStore.loadFromDisk(user.uid);
+        setItems([...checklistStore.getItems()]);
+
+        // also load the correct profile picture for this user
+        const stored = await AsyncStorage.getItem(profileKey(user.uid));
+        setProfilePicUri(stored);
+      } else {
+        // no user signed in; clear local store to avoid seeing old data
+        checklistStore.clear();
+        setItems([]);
+        setProfilePicUri(null);
+      }
+    });
+
+    // subscribe to future store updates
     const unsubscribe = checklistStore.subscribe(() => {
       setItems([...checklistStore.getItems()]);
     });
-    return unsubscribe;
+
+    return () => {
+      unregisterAuth();
+      unsubscribe();
+    };
   }, []);
 
-  useFocusEffect( // Refresh profile picture URI whenever the screen comes into focus (e.g., after updating profile picture)
-    React.useCallback(() => { // Refresh profile picture URI whenever the screen comes into focus (e.g., after updating profile picture)
-      const loadProfilePic = async () => { // 
-        const storedUri = await AsyncStorage.getItem('profilePicUri');
-        setProfilePicUri(storedUri); // Update state with the latest profile picture URI
+  useFocusEffect(
+    React.useCallback(() => {
+      const loadProfilePic = async () => {
+        const storedUri = await AsyncStorage.getItem(profileKey());
+        setProfilePicUri(storedUri);
       };
       loadProfilePic();
     }, [])
   );
+
 
   const totalCount = items.length; //   Calculate total count of items, nearby (active) items, and away (inactive) items for display in the overview section
   const nearbyCount = items.filter(i => i.active).length; // Count of active items (considered "nearby")

@@ -6,6 +6,7 @@ import { EmailAuthProvider, reauthenticateWithCredential, updateEmail, updatePas
 import { useEffect, useState } from 'react';
 import { Alert, Image, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { auth } from '../firebaseConfig';
+import { checklistStore } from '../src/store/checklistStore';
 
 export default function ProfileScreen() { // Main profile screen for user settings and profile picture management
   const router = useRouter();
@@ -13,6 +14,7 @@ export default function ProfileScreen() { // Main profile screen for user settin
   const [password, setPassword] = useState('');
   const [currentPassword, setCurrentPassword] = useState('');
   const [profilePicUri, setProfilePicUri] = useState<string | null>(null);
+  const profileKey = (uid?: string) => `profilePicUri_${uid || auth.currentUser?.uid || 'anon'}`;
 
   useEffect(() => { // Load user profile data on component mount
     const loadProfile = async () => {
@@ -20,7 +22,7 @@ export default function ProfileScreen() { // Main profile screen for user settin
       if (user) {
         setEmail(user.email || '');
       }
-      const storedUri = await AsyncStorage.getItem('profilePicUri'); // Load profile picture URI from storage 
+      const storedUri = await AsyncStorage.getItem(profileKey(user?.uid)); // Load profile picture URI from storage 
       if (storedUri) {
         setProfilePicUri(storedUri);
       }
@@ -45,7 +47,7 @@ export default function ProfileScreen() { // Main profile screen for user settin
     if (!result.canceled) { // If user selected an image, save its URI to state and storage
       const uri = result.assets[0].uri;
       setProfilePicUri(uri);
-      await AsyncStorage.setItem('profilePicUri', uri);
+      await AsyncStorage.setItem(profileKey(), uri);
     }
   };
 
@@ -157,7 +159,13 @@ export default function ProfileScreen() { // Main profile screen for user settin
       </TouchableOpacity>
 
       {/* Logout */}
-      <TouchableOpacity onPress={async () => { await auth.signOut(); router.replace('/'); }} style={{ backgroundColor: '#e74c3c', padding: 12, borderRadius: 8, alignItems: 'center' }}>
+      <TouchableOpacity onPress={async () => {
+          await auth.signOut();
+          await checklistStore.clear();
+          // also clear stored picture so next user starts fresh
+          await AsyncStorage.removeItem(profileKey());
+          router.replace('/');
+        }} style={{ backgroundColor: '#e74c3c', padding: 12, borderRadius: 8, alignItems: 'center' }}>
         <Text style={{ color: 'white', fontWeight: 'bold' }}>Logout</Text>
       </TouchableOpacity>
     </ScrollView>
