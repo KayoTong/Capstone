@@ -15,7 +15,8 @@ import {
 import MapView, { Circle, Marker } from "react-native-maps";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { styles } from "../src/styles/geofencesetup.styles";
-
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "../firebaseConfig";
 export default function GeofenceSetup() {
   const router = useRouter();
   const DEFAULT_RADIUS = 150;
@@ -64,6 +65,16 @@ export default function GeofenceSetup() {
       }
     })();
   }, []);
+
+  useEffect(() => { // i am trying to print the current user's UID to the console whenever the authentication state changes, to verify that we are correctly identifying the user for geofence storage
+  const unsubscribe = onAuthStateChanged(auth, (user) => { //
+    if (user) {
+      console.log("UID:", user.uid); // we can access the user's UID here, which should be used in the saveGeofence function to associate the geofence with the correct user in storage
+    }
+  });
+
+  return unsubscribe;
+}, []);
 
   async function handleSave() {
     if (!region) return;
