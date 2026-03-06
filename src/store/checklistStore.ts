@@ -6,6 +6,7 @@ export type ChecklistItem = {
   name: string;
   photoUri: string;
   active: boolean;
+  lastChecked?: string; // Automatically stores the date/time verified
 };
 
 // helper to derive storage key for current user (or anonymous)
@@ -72,6 +73,24 @@ export const checklistStore = {
       item.id === id ? { ...item, name: newName } : item
     );
     await checklistStore.saveToDisk(); // Auto-save
+    notifyListeners();
+  },
+
+  // NEW: Automatically grab the current time and save it to the item
+  updateLastChecked: async (id: string) => {
+    const now = new Date();
+    const timestamp = now.toLocaleString([], { 
+      month: 'short', 
+      day: 'numeric', 
+      hour: '2-digit', 
+      minute: '2-digit' 
+    });
+
+    items = items.map((item) =>
+      item.id === id ? { ...item, lastChecked: timestamp } : item
+    );
+    
+    await checklistStore.saveToDisk();
     notifyListeners();
   },
   

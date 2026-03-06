@@ -91,11 +91,11 @@ export default function FinalHomeScreen() { // Main home screen displaying user'
         </Text>
         
         <View style={styles.statusRow}>
-          <Text style={styles.locationText}>📍 You're at Home</Text>
+          <Text style={styles.locationText}>📍 Home Location Set</Text>
           <Text style={styles.divider}>•</Text>
           <View style={styles.activeBadge}>
-            <View style={styles.greenDot} />
-            <Text style={styles.activeText}>Geofencing Active</Text>
+            <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#2ECC71', marginRight: 6 }} />
+            <Text style={styles.activeText}>Monitoring Active</Text>
           </View>
         </View>
 
@@ -106,15 +106,15 @@ export default function FinalHomeScreen() { // Main home screen displaying user'
               <Text style={{ fontSize: 24 }}>{totalCount === 0 ? "📦" : "✅"}</Text>
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={styles.alertTitle}>{totalCount === 0 ? "No items tracked" : "All items secured"}</Text>
+              <Text style={styles.alertTitle}>{totalCount === 0 ? "No items tracked" : "Checklist Secured"}</Text>
               <Text style={styles.alertSub}>
-                {totalCount === 0 ? "Tap the + button to add your first item." : `Monitoring ${nearbyCount} active items.`}
+                {totalCount === 0 ? "Tap the + button to add your first item." : `Monitoring ${nearbyCount} items for your next exit.`}
               </Text>
             </View>
           </View>
         </View>
 
-        {/* 2. OVERVIEW GRID - Updated path to /dashboard */}
+        {/* 2. ITEMS OVERVIEW SECTION (Reverted name) */}
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionLabel}>📊 Items Overview</Text>
           <TouchableOpacity onPress={() => router.push('/dashboard')}>
@@ -128,21 +128,30 @@ export default function FinalHomeScreen() { // Main home screen displaying user'
           <StatBox count={awayCount} label="Away" color="#f39c12" />
         </View>
 
-        {/* 3. ITEMS LIST */}
-        <Text style={styles.sectionLabel}>Essential Items</Text>
-        {items.length > 0 ? (
-          items.map((item) => (
-            <ItemRow 
-              key={item.id} 
-              photoUri={item.photoUri} 
-              name={item.name} 
-              status={item.active ? "Nearby" : "Disabled"} 
-              statusColor={item.active ? "#2ECC71" : "#999"} 
-            />
-          ))
-        ) : (
-          <Text style={{ color: '#999', fontStyle: 'italic', marginBottom: 20 }}>List is currently empty.</Text>
-        )}
+        {/* 3. LOCATION SETTINGS CARD */}
+        <Text style={styles.sectionLabel}>Location Settings</Text>
+        <TouchableOpacity 
+          style={{ 
+            flexDirection: 'row', 
+            backgroundColor: '#fff', 
+            padding: 15, 
+            borderRadius: 12, 
+            alignItems: 'center',
+            marginBottom: 20,
+            borderWidth: 1,
+            borderColor: '#f1f1f1'
+          }}
+          onPress={() => router.push('/geofencesetup')}
+        >
+          <View style={{ width: 45, height: 45, borderRadius: 10, backgroundColor: '#E8F8F0', justifyContent: 'center', alignItems: 'center' }}>
+            <Ionicons name="map-outline" size={24} color="#2ECC71" />
+          </View>
+          <View style={{ flex: 1, marginLeft: 15 }}>
+            <Text style={{ fontWeight: 'bold', fontSize: 16 }}>Edit Home Zone</Text>
+            <Text style={{ color: '#888', fontSize: 13 }}>Adjust your GPS detection radius.</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={20} color="#ccc" />
+        </TouchableOpacity>
 
         {/* 4. MENU */}
         <Text style={styles.sectionLabel}>Menu</Text>
@@ -152,18 +161,18 @@ export default function FinalHomeScreen() { // Main home screen displaying user'
         </View>
       </ScrollView>
 
-      {/* Floating Plus Button - Updated path to /dashboard */}
+      {/* Floating Plus Button */}
       <TouchableOpacity style={styles.fab} onPress={() => router.push('/dashboard')}>
         <Ionicons name="add" size={32} color="white" />
       </TouchableOpacity>
 
-      {/* 5. TAB BAR */}
+      {/* 5. TAB BAR - Keeping History Tab for your logs */}
       <View style={styles.tabBarWrapper}>
         <View style={styles.tabBar}>
           <TabItem emoji="🏠" label="Home" active onPress={undefined} />
-          <TabItem emoji="🗺️" label="Map" onPress={() => router.push('/geofencesetup')} />
+          <TabItem emoji="🕒" label="History" onPress={() => router.push('/history')} />
           <TabItem emoji="📦" label="Items" onPress={() => router.push('/dashboard')} />
-            <TabItem emoji="👤" label="Profile" onPress={() => router.push('/profile')} />
+          <TabItem emoji="👤" label="Profile" onPress={() => router.push('/profile')} />
         </View>
       </View>
     </SafeAreaView>
@@ -171,27 +180,10 @@ export default function FinalHomeScreen() { // Main home screen displaying user'
   );
 }
 
-// ... (Keep StatBox, ItemRow, MenuListItem, TabItem, and Styles exactly as they were)
 const StatBox = ({ count, label, color }: any) => (
   <View style={styles.statBox}>
     <Text style={[styles.statCount, { color }]}>{count}</Text>
     <Text style={styles.statLabel}>{label}</Text>
-  </View>
-);
-
-const ItemRow = ({ photoUri, name, status, statusColor }: any) => (
-  <View style={styles.itemRow}>
-    <View style={styles.itemIconBg}>
-      <Image source={{ uri: photoUri }} style={styles.itemImage} />
-    </View>
-    <View style={{ flex: 1 }}>
-      <Text style={styles.itemName}>{name}</Text>
-      <View style={[styles.itemStatusBadge, { backgroundColor: `${statusColor}20` }]}>
-        <View style={[styles.smallDot, { backgroundColor: statusColor }]} />
-        <Text style={[styles.itemStatusText, { color: statusColor }]}>{status}</Text>
-      </View>
-    </View>
-    <Ionicons name="chevron-forward" size={18} color="#ccc" />
   </View>
 );
 

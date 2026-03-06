@@ -5,8 +5,6 @@ import { useEffect, useState } from 'react';
 import {
     Dimensions // Added to handle full-screen sizing
     ,
-
-
     FlatList,
     Image,
     Modal,
@@ -25,7 +23,7 @@ export default function PortableEssentials() {
   const router = useRouter();
   const [items, setItems] = useState<ChecklistItem[]>(checklistStore.getItems());
   
-  // Modal States
+  // Controls for Rename and Image window
   const [isRenameVisible, setIsRenameVisible] = useState(false);
   const [isPreviewVisible, setIsPreviewVisible] = useState(false);
   const [selectedItem, setSelectedItem] = useState<ChecklistItem | null>(null);
@@ -107,12 +105,10 @@ export default function PortableEssentials() {
             <Text style={styles.addButtonText}>Add Item</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.mapButton} onPress={() => router.push("/geofencesetup")}>
-            <Text style={styles.mapButtonText}>Next: Setup Geofencing</Text>
-          </TouchableOpacity>
+          {/* "Next: Setup Geofencing" Button removed to fix navigation issues */}
         </View>
 
-        {/* IMAGE PREVIEW MODAL */}
+        {/* Image Feature */}
         <Modal visible={isPreviewVisible} transparent={true} animationType="fade">
           <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.9)', justifyContent: 'center', alignItems: 'center' }}>
             <TouchableOpacity 
@@ -133,7 +129,7 @@ export default function PortableEssentials() {
           </View>
         </Modal>
 
-        {/* RENAME MODAL */}
+        {/* Rename Feature */}
         <Modal visible={isRenameVisible} transparent={true} animationType="fade">
           <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'center', alignItems: 'center', padding: 20 }}>
             <View style={{ backgroundColor: '#1e1e1e', width: '100%', borderRadius: 15, padding: 20, borderWidth: 1, borderColor: '#333' }}>

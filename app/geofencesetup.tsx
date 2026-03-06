@@ -1,25 +1,28 @@
-import { saveGeofence } from "@/storage/geofence";
+import { getGeofence, saveGeofence } from "@/storage/geofence";
 import { Ionicons } from "@expo/vector-icons";
 import Slider from "@react-native-community/slider";
 import * as Location from "expo-location";
-import { Stack, useRouter } from 'expo-router'; // Added Stack
+import { Stack, useRouter } from "expo-router";
+import { onAuthStateChanged } from "firebase/auth";
 import { useEffect, useState } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    Switch,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Alert,
+  Switch,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import MapView, { Circle, Marker } from "react-native-maps";
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { styles } from "../src/styles/geofencesetup.styles";
-import { onAuthStateChanged } from "firebase/auth";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { auth } from "../firebaseConfig";
+import { updateGeofenceSettings } from "../src/services/userService";
+import { styles } from "../src/styles/geofencesetup.styles";
+
 export default function GeofenceSetup() {
   const router = useRouter();
   const DEFAULT_RADIUS = 150;
+  const GEOFENCE_TASK_NAME = "GEOFENCE_CHECK"; // Matches the task name in _layout.tsx
 
   type MapRegion = {
     latitude: number;
@@ -32,76 +35,152 @@ export default function GeofenceSetup() {
   const [radius, setRadius] = useState(DEFAULT_RADIUS);
   const [enabled, setEnabled] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
 
+  // Function to snap map to wherever the phone (or Fake GPS) is right now
+  async function handleRecenter() {
+    try {
+      setLoading(true);
+      const loc = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.Balanced,
+      });
+      const newRegion = {
+        latitude: loc.coords.latitude,
+        longitude: loc.coords.longitude,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
+      };
+      setRegion(newRegion);
+      console.log(
+        "Map updated to current GPS:",
+        newRegion.latitude,
+        newRegion.longitude,
+      );
+    } catch (error) {
+      Alert.alert("Error", "Could not refresh location.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // COMBINED INITIALIZATION: Loads storage first, then GPS if no storage exists.
   useEffect(() => {
-    (async () => {
+    async function initialize() {
       try {
+        setLoading(true);
+
+        // 1. Get Location Permissions
         const { granted } = await Location.requestForegroundPermissionsAsync();
         if (!granted) {
-          Alert.alert("Permission Denied", "Location access is needed for geofencing.");
+          Alert.alert("Permission Denied", "Location access is needed.");
           setLoading(false);
           return;
         }
 
-        let loc = await Location.getLastKnownPositionAsync({});
-        if (!loc) {
-          loc = await Location.getCurrentPositionAsync({
-            accuracy: Location.Accuracy.Balanced,
-          });
+        // 2. Load Saved Settings (AsyncStorage)
+        const saved = await getGeofence();
+
+        if (saved) {
+          setEnabled(saved.enabled);
+          setRadius(saved.radiusMeters || DEFAULT_RADIUS);
+          if (saved.latitude && saved.longitude) {
+            setRegion({
+              latitude: saved.latitude,
+              longitude: saved.longitude,
+              latitudeDelta: 0.01,
+              longitudeDelta: 0.01,
+            });
+          }
         }
 
-        if (loc) {
-          setRegion({
-            latitude: loc.coords.latitude,
-            longitude: loc.coords.longitude,
-            latitudeDelta: 0.01,
-            longitudeDelta: 0.01,
-          });
+        // 3. If no saved region, fetch live GPS automatically
+        if (!saved || !saved.latitude) {
+          await handleRecenter();
         }
       } catch (error) {
-        Alert.alert("Location Error", "Could not determine your current position.");
+        console.error("Init Error:", error);
       } finally {
         setLoading(false);
       }
-    })();
+    }
+    initialize();
   }, []);
 
-  useEffect(() => { // i am trying to print the current user's UID to the console whenever the authentication state changes, to verify that we are correctly identifying the user for geofence storage
-  const unsubscribe = onAuthStateChanged(auth, (user) => { //
-    if (user) {
-      console.log("UID:", user.uid); // we can access the user's UID here, which should be used in the saveGeofence function to associate the geofence with the correct user in storage
-    }
-  });
-
-  return unsubscribe;
-}, []);
+  useEffect(() => {
+    // Print UID for verification
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) console.log("UID:", user.uid);
+    });
+    return unsubscribe;
+  }, []);
 
   async function handleSave() {
-    if (!region) return;
-    try {
-      await saveGeofence({
-        enabled,
-        latitude: region.latitude,
-        longitude: region.longitude,
-        radiusMeters: radius,
-      });
+    if (!region || isSaving) return;
+    const user = auth.currentUser;
+    setIsSaving(true);
 
-      router.replace("/home" as any);
+    try {
+      if (user) {
+        // 1. Firebase update
+        await updateGeofenceSettings(
+          user.uid,
+          region.latitude,
+          region.longitude,
+          radius,
+        );
+
+        // 2. Local storage update
+        await saveGeofence({
+          enabled: enabled,
+          latitude: region.latitude,
+          longitude: region.longitude,
+          radiusMeters: radius,
+        });
+
+        // 3. Register/Unregister the actual Background Geofence
+        if (enabled) {
+          await Location.startGeofencingAsync(GEOFENCE_TASK_NAME, [
+            {
+              identifier: "HomeZone",
+              latitude: region.latitude,
+              longitude: region.longitude,
+              radius: radius,
+              notifyOnExit: true,
+              notifyOnEnter: false,
+            },
+          ]);
+          console.log(
+            "LOG: Geofencing Started at:",
+            region.latitude,
+            region.longitude,
+          );
+        } else {
+          await Location.stopGeofencingAsync(GEOFENCE_TASK_NAME);
+          console.log("LOG: Geofencing Stopped.");
+        }
+
+        router.replace("/home" as any);
+      } else {
+        Alert.alert("Error", "User not authenticated.");
+        setIsSaving(false);
+      }
     } catch (e) {
       Alert.alert("Error", "Failed to save geofence.");
+      console.error("Save Error:", e);
+      setIsSaving(false);
     }
   }
 
   return (
     <>
-      {/* This removes the white header bar */}
       <Stack.Screen options={{ headerShown: false }} />
-
-      {/* SafeAreaView ensures content stays below the status bar/notch */}
-      <SafeAreaView style={[styles.container, { backgroundColor: '#000' }]}>
+      <SafeAreaView style={[styles.container, { backgroundColor: "#000" }]}>
         <View style={{ flex: 1, paddingHorizontal: 20 }}>
           <View style={styles.header}>
-            <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+            <TouchableOpacity
+              style={styles.backButton}
+              onPress={() => router.back()}
+            >
               <Ionicons name="arrow-back" size={24} color="white" />
             </TouchableOpacity>
             <Text style={styles.title}>BeforeIGo Setup</Text>
@@ -110,23 +189,66 @@ export default function GeofenceSetup() {
           {loading ? (
             <View style={styles.loadingBox}>
               <ActivityIndicator size="large" color="#00ff88" />
-              <Text style={{ color: "#aaa", marginTop: 10 }}>Locating your home...</Text>
+              <Text style={{ color: "#aaa", marginTop: 10 }}>
+                Updating Location...
+              </Text>
             </View>
           ) : region ? (
-            <MapView style={styles.map} initialRegion={region}>
-              <Marker coordinate={region} />
-              <Circle
-                center={region}
-                radius={radius}
-                strokeColor="rgba(0,255,0,0.8)"
-                fillColor="rgba(0,255,0,0.2)"
-              />
-            </MapView>
-          ) : (
-            <View style={styles.loadingBox}>
-              <Text style={{ color: "#ff6b6b" }}>Map unavailable. Check GPS.</Text>
+            <View
+              style={{
+                height: 300,
+                borderRadius: 15,
+                overflow: "hidden",
+                marginBottom: 20,
+              }}
+            >
+              <MapView
+                style={{ flex: 1 }}
+                initialRegion={region}
+                region={region}
+                showsUserLocation={true} // Shows blue dot for current location
+                toolbarEnabled={true} // Restores Google Maps "Directions" & "Open in Maps" buttons
+              >
+                <Marker coordinate={region} />
+                <Circle
+                  center={region}
+                  radius={radius}
+                  strokeColor="rgba(0,255,0,0.8)"
+                  fillColor="rgba(0,255,0,0.2)"
+                />
+              </MapView>
+
+              {/* Pin to GPS Button - Top Right position to avoid overlapping Google Tools */}
+              <TouchableOpacity
+                style={{
+                  position: "absolute",
+                  top: 15,
+                  right: 15,
+                  backgroundColor: "rgba(34, 34, 34, 0.9)",
+                  paddingVertical: 8,
+                  paddingHorizontal: 12,
+                  borderRadius: 8,
+                  flexDirection: "row",
+                  alignItems: "center",
+                  borderWidth: 1,
+                  borderColor: "#444",
+                }}
+                onPress={handleRecenter}
+              >
+                <Ionicons name="locate" size={18} color="#00ff88" />
+                <Text
+                  style={{
+                    color: "white",
+                    marginLeft: 6,
+                    fontSize: 12,
+                    fontWeight: "bold",
+                  }}
+                >
+                  Pin to GPS
+                </Text>
+              </TouchableOpacity>
             </View>
-          )}
+          ) : null}
 
           <Text style={styles.label}>Detection Radius</Text>
           <Text style={styles.radiusText}>{radius} meters</Text>
@@ -146,7 +268,9 @@ export default function GeofenceSetup() {
           <View style={styles.toggleRow}>
             <View>
               <Text style={styles.label}>Enable Geofencing</Text>
-              <Text style={{ color: "#666", fontSize: 12 }}>Alert when leaving this area</Text>
+              <Text style={{ color: "#666", fontSize: 12 }}>
+                Alert when leaving this area
+              </Text>
             </View>
             <Switch
               value={enabled}
@@ -155,8 +279,16 @@ export default function GeofenceSetup() {
             />
           </View>
 
-          <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-            <Text style={styles.saveText}>Save & Activate</Text>
+          <TouchableOpacity
+            style={[styles.saveButton, isSaving && { opacity: 0.8 }]}
+            onPress={handleSave}
+            disabled={isSaving}
+          >
+            {isSaving ? (
+              <ActivityIndicator color="black" />
+            ) : (
+              <Text style={styles.saveText}>Save & Activate</Text>
+            )}
           </TouchableOpacity>
         </View>
       </SafeAreaView>
