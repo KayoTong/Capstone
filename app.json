@@ -9,7 +9,14 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.kayotonge.capstone",
+      "infoPlist": {
+        "UIBackgroundModes": ["location", "fetch"],
+        "NSLocationWhenInUseUsageDescription": "BeforeIGo needs your location to set your home safety zone.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "BeforeIGo needs background location to alert you if you leave home without your essentials.",
+        "NSLocationAlwaysUsageDescription": "BeforeIGo needs background location to protect your items even when the app is closed."
+      }
     },
     "android": {
       "adaptiveIcon": {
