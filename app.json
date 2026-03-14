@@ -1,16 +1,15 @@
 {
   "expo": {
-    "name": "capstone",
-    "slug": "capstone",
+    "name": "BeforeIGo",
+    "slug": "beforeigo",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
-    "scheme": "capstone",
+    "icon": "./assets/images/beforeigo-ios-icon-1024.png",
+    "scheme": "beforeigo",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.kayotonge.capstone",
+      "bundleIdentifier": "com.kayotonge.beforeigo",
       "infoPlist": {
         "UIBackgroundModes": ["location", "fetch"],
         "NSLocationWhenInUseUsageDescription": "BeforeIGo needs your location to set your home safety zone.",
@@ -21,13 +20,12 @@
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+        "foregroundImage": "./assets/images/beforeigo-android-adaptive-foreground-1024.png"
       },
-      "edgeToEdgeEnabled": true,
+     
       "predictiveBackGestureEnabled": false,
-      "package": "com.kayotonge.capstone",
+      "package": "com.kayotonge.beforeigo",
+     
       "config": {
         "googleMaps": {
           "apiKey": "AIzaSyBC4cfV8vdM3kOdqon_XJnWLCG1WXbBkQg"
