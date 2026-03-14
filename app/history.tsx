@@ -20,6 +20,15 @@ export default function HistoryScreen() {
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
+    /* NEW LOGIC: Refresh data from disk immediately when entering the screen */
+    const loadData = async () => {
+      await checklistStore.loadFromDisk();
+      setItems([...checklistStore.getItems()]);
+    };
+    
+    loadData();
+
+    // Standard subscription for any changes that happen while the screen is open
     const unsubscribe = checklistStore.subscribe(() => {
       setItems([...checklistStore.getItems()]);
     });
@@ -47,8 +56,13 @@ export default function HistoryScreen() {
       <View style={styles.infoContainer}>
         <Text style={styles.itemName}>{item.name}</Text>
         <View style={styles.verifiedRow}>
-          <Ionicons name="checkmark-circle" size={14} color="#2ECC71" />
-          <Text style={styles.verifiedText}>
+          {/* LOGIC: Change icon color/style if not verified */}
+          <Ionicons 
+            name={item.lastChecked ? "checkmark-circle" : "ellipse-outline"} 
+            size={14} 
+            color={item.lastChecked ? "#2ECC71" : "#4A5D52"} 
+          />
+          <Text style={[styles.verifiedText, !item.lastChecked && { color: '#4A5D52' }]}>
             {item.lastChecked ? `Checked: ${item.lastChecked}` : 'Not verified'}
           </Text>
         </View>
@@ -64,7 +78,7 @@ export default function HistoryScreen() {
       <View style={styles.header}>
         {!isSearching ? (
           <>
-            <TouchableOpacity onPress={() => router.back()}>
+            <TouchableOpacity onPress={() => router.replace('/home')}>
               <Ionicons name="arrow-back" size={24} color="#fff" />
             </TouchableOpacity>
             <Text style={styles.headerTitle}>History</Text>

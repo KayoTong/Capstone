@@ -214,4 +214,53 @@ import { StyleSheet } from "react-native";
     fontWeight: '700',
     marginLeft: 8,
   },
+
+  /* NEW VERIFIED STATE STYLES - Added to bridge the Leave Check with the History page model */
+  verifiedCard: { // Layout that transforms the chip into a card matching the history log entries.
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(20, 49, 37, 0.94)',
+    borderRadius: 20,
+    padding: 12,
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: '#4ADE80',
+    width: '100%',
+  },
+  circleProfile: { // The circular container for item photos/icons to create the "Profile" look.
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#9BFFC3',
+    marginRight: 14,
+    overflow: 'hidden',
+  },
+  iconWrapSmall: { // Muted spacing for the chip icon before verification.
+    marginRight: 4,
+  },
+  verifiedTextContent: { // Aligns the item name and verification status vertically.
+    flex: 1,
+    justifyContent: 'center',
+  },
+  verifiedItemName: { // Font style for verified items.
+    color: '#F4FFF8',
+    fontSize: 16,
+    fontWeight: '700',
+    marginBottom: 2,
+  },
+  verifiedBadge: { // Container for the green verification badge.
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  verifiedBadgeText: { // Small green uppercase text for the verified status.
+    color: '#4ADE80',
+    fontSize: 11,
+    fontWeight: '600',
+    marginLeft: 4,
+    textTransform: 'uppercase',
+  },
 });
