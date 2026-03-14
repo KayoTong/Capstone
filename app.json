@@ -1,10 +1,10 @@
 {
-  "expo": {
-    "name": "BeforeIGo",
-    "slug": "beforeigo",
+  "expo": { // https://docs.expo.dev/workflow/configuration/
+    "name": "BeforeIGo", // The name of your app as it appears on the home screen and in the app store.
+    "slug": "beforeigo", 
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/beforeigo-ios-icon-1024.png",
+    "icon": "./assets/images/beforeigo-ios-icon-1024.png", // The icon for your app, which is used on the home screen and in the app store.
     "scheme": "beforeigo",
     "userInterfaceStyle": "automatic",
     "ios": {
@@ -20,7 +20,7 @@
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/beforeigo-android-adaptive-foreground-1024.png"
+        "foregroundImage": "./assets/images/beforeigo-android-adaptive-foreground-1024.png" // The foreground image for the adaptive icon, which is used on Android devices.
       },
      
       "predictiveBackGestureEnabled": false,
