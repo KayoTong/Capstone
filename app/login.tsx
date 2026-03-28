@@ -39,7 +39,7 @@ export default function LoginScreen() { // Main login/signup screen for user aut
       <Stack.Screen options={{ headerShown: false }} />
       
       <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-        <Ionicons name="arrow-back" size={24} color="#2ECC71" />
+        <Ionicons name="arrow-back" size={24} color="#fff" />
       </TouchableOpacity>
 
       <View style={styles.header}>
@@ -53,7 +53,7 @@ export default function LoginScreen() { // Main login/signup screen for user aut
           <TextInput 
             placeholder="Email" 
             style={styles.input} 
-            placeholderTextColor="#555" 
+            placeholderTextColor="#000" 
             autoCapitalize="none"
             onChangeText={setEmail} 
           />
@@ -64,7 +64,7 @@ export default function LoginScreen() { // Main login/signup screen for user aut
           <TextInput 
             placeholder="Password" 
             style={styles.input} 
-            placeholderTextColor="#555" 
+            placeholderTextColor="#000" 
             secureTextEntry 
             onChangeText={setPassword} 
           />

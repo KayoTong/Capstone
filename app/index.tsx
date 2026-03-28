@@ -1,13 +1,14 @@
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Stack, useRouter } from "expo-router";
+import { Redirect, Stack, useRouter } from "expo-router";
 import {
-    StatusBar,
-    Text,
-    TouchableOpacity,
-    View
+  StatusBar,
+  Text,
+  TouchableOpacity,
+  View
 } from "react-native";
 import { styles } from "../src/styles/index.styles";
+
 
 export default function WelcomeScreen() {
   const router = useRouter();
@@ -42,7 +43,7 @@ export default function WelcomeScreen() {
         </View>
 
         <Text style={styles.logoText}>
-          Before<Text style={{ color: "#2ECC71" }}>IGo</Text>
+          <Text style={{color: "#2ECC71" }}> BeforeIGo</Text>
         </Text>
         <Text style={styles.tagline}>Peace of mind when you leave home.</Text>
 
@@ -65,7 +66,7 @@ export default function WelcomeScreen() {
       <View style={styles.footer}>
         <TouchableOpacity style={styles.getStartedBtn} onPress={handlePress}>
           <Text style={styles.getStartedText}>Get Started</Text>
-          <Ionicons name="arrow-forward" size={20} color="#0A1A10" />
+          <Ionicons name="arrow-forward" size={20} color="#fff" />
         </TouchableOpacity>
       </View>
     </View>

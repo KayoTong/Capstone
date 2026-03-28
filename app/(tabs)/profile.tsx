@@ -1,3 +1,6 @@
+// Created '(tabs)' folder to group pages from tab bar into a uniform
+// navigation that the user can navigate through
+
 import { checklistStore } from '@/src/store/checklistStore';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -6,7 +9,7 @@ import { Stack, useRouter } from 'expo-router';
 import { EmailAuthProvider, reauthenticateWithCredential, updateEmail, updatePassword } from 'firebase/auth';
 import { useEffect, useState } from 'react';
 import { Alert, Image, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { auth } from '../firebaseConfig';
+import { auth } from '../../firebaseConfig';
 
 export default function ProfileScreen() { // Main profile screen for user settings and profile picture management
   const router = useRouter();
@@ -93,14 +96,14 @@ export default function ProfileScreen() { // Main profile screen for user settin
   };
 
   return ( // Main UI for profile screen with sections for profile picture, email, and password management
-    <ScrollView style={{ flex: 1, backgroundColor: '#fff', padding: 20, paddingTop: 60 }}>
+    <ScrollView style={{ flex: 1, backgroundColor: '#6B7A74', padding: 20, paddingTop: 60 }}>
       <Stack.Screen options={{ headerShown: false }} />
       
       <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 20 }}>
         <TouchableOpacity onPress={() => router.back()} style={{ marginRight: 15 }}>
-          <Ionicons name="arrow-back" size={24} color="#000" />
+          <Ionicons name="arrow-back" size={24} color="#fff" />
         </TouchableOpacity>
-        <Text style={{ fontSize: 24, fontWeight: 'bold' }}>Profile Settings</Text>
+        <Text style={{ color: '#fff', fontSize: 24, fontWeight: 'bold' }}>Profile Settings</Text>
       </View>
 
       {/* Profile Picture */}
@@ -117,16 +120,16 @@ export default function ProfileScreen() { // Main profile screen for user settin
             <Ionicons name="camera" size={16} color="white" />
           </View>
         </TouchableOpacity>
-        <Text style={{ marginTop: 10, color: '#666' }}>Tap to change profile picture</Text>
+        <Text style={{ marginTop: 10, color: '#fff' }}>Tap to change profile picture</Text>
       </View>
 
       {/* Email */}
-      <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 10 }}>Email</Text>
+      <Text style={{ color: '#2ECC71' ,fontSize: 18, fontWeight: 'bold', marginBottom: 10 }}>Email</Text>
       <TextInput
         value={email}
         onChangeText={setEmail}
         placeholder="Enter your email"
-        style={{ borderWidth: 1, borderColor: '#ddd', padding: 10, borderRadius: 8, marginBottom: 10 }}
+        style={{ borderWidth: 1, borderColor: '#ddd', padding: 10, borderRadius: 8, marginBottom: 10, backgroundColor: '#fff' }}
         keyboardType="email-address"
         autoCapitalize="none"
       />
@@ -135,23 +138,23 @@ export default function ProfileScreen() { // Main profile screen for user settin
       </TouchableOpacity>
 
       {/* Password */}
-      <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 10 }}>Change Password</Text>
-      <Text style={{ fontSize: 14, color: '#666', marginBottom: 10 }}>Current Password</Text>
+      <Text style={{ fontSize: 18, color: '#fff', fontWeight: 'bold', marginBottom: 10 }}>Change Password</Text>
+      <Text style={{ fontSize: 14, color: '#fff', marginBottom: 10 }}>Current Password</Text>
       <TextInput
         value={currentPassword}
         onChangeText={setCurrentPassword}
-        placeholder="Enter current password"
+        placeholder="Enter Current Password"
         secureTextEntry
-        style={{ borderWidth: 1, borderColor: '#ddd', padding: 10, borderRadius: 8, marginBottom: 15 }}
+        style={{backgroundColor: '#fff', borderWidth: 1, borderColor: '#ddd', padding: 10, borderRadius: 8, marginBottom: 15 }}
         autoCapitalize="none"
       />
-      <Text style={{ fontSize: 14, color: '#666', marginBottom: 10 }}>New Password</Text>
+      <Text style={{ fontSize: 14, color: '#fff', marginBottom: 10 }}>New Password</Text>
       <TextInput
         value={password}
         onChangeText={setPassword}
-        placeholder="Enter new password"
+        placeholder="Enter New Password"
         secureTextEntry
-        style={{ borderWidth: 1, borderColor: '#ddd', padding: 10, borderRadius: 8, marginBottom: 10 }}
+        style={{backgroundColor: '#fff', borderWidth: 1, borderColor: '#ddd', padding: 10, borderRadius: 8, marginBottom: 10,}}
         autoCapitalize="none"
       />
       <TouchableOpacity onPress={updatePasswordHandler} style={{ backgroundColor: '#2ECC71', padding: 12, borderRadius: 8, alignItems: 'center', marginBottom: 20 }}>

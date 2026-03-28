@@ -21,7 +21,7 @@ export const styles = StyleSheet.create({ // Styles for the How It Works screen,
     marginBottom: 40, 
     overflow: 'hidden',
     borderWidth: 1, 
-    borderColor: '#eee' 
+    borderColor: '#0A3D2E' 
   },
   fullImage: { width: '100%', height: '100%' },
   uiCard: { backgroundColor: '#fff', width: '85%', borderRadius: 12, padding: 15, elevation: 3, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 10 },

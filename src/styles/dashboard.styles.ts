@@ -1,12 +1,12 @@
 import { StyleSheet } from 'react-native';
 
 export const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#050c08', padding: 25, paddingTop: 60 },
+  container: { flex: 1, backgroundColor: '#6B7A74', padding: 25, paddingTop: 60 },
   header: { flexDirection: 'row', alignItems: 'center', marginBottom: 20 },
   backButton: { marginRight: 15 },
   titleText: { color: 'white', fontSize: 28, fontWeight: 'bold' },
   itemCard: { 
-    backgroundColor: '#111d15', 
+    backgroundColor: '#12231A', 
     padding: 15, 
     borderRadius: 15, 
     marginBottom: 10, 
@@ -28,7 +28,7 @@ export const styles = StyleSheet.create({
     marginBottom: 10,
     justifyContent: 'center'
   },
-  addButtonText: { color: '#0A1A10', fontWeight: 'bold', fontSize: 16, marginLeft: 8 },
+  addButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 16, marginLeft: 8 },
   mapButton: { backgroundColor: '#2ECC71', padding: 20, borderRadius: 15, alignItems: 'center' },
   mapButtonText: { color: '#0A1A10', fontWeight: 'bold', fontSize: 16 }
 });

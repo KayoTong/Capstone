@@ -1,12 +1,12 @@
-import { View, Text } from "react-native";
-import { useRouter } from "expo-router";
 import PrimaryButton from "@/src/components/buttons/PrimaryButton";
+import { useRouter } from "expo-router";
+import { Text, View } from "react-native";
 // Setup screen prompting user to add their first essential item.
 export default function SetupScreen() {
   const router = useRouter();
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#0B0F0E", padding: 24 }}>
+    <View style={{ flex: 1, backgroundColor: "#fff", padding: 24 }}>
       <View style={{ paddingTop: 120 }}>
         <Text style={{ color: "#22C55E", marginBottom: 8 }}>
           Step 1 of 2

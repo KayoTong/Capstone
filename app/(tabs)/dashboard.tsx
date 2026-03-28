@@ -3,19 +3,22 @@ import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
-    Dimensions // Added to handle full-screen sizing
-    ,
-    FlatList,
-    Image,
-    Modal,
-    Switch,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  Dimensions // Added to handle full-screen sizing
+  ,
+
+
+
+  FlatList,
+  Image,
+  Modal,
+  Switch,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { styles } from "../src/styles/dashboard.styles";
+import { styles } from "../../src/styles/dashboard.styles";
 
 const { width, height } = Dimensions.get('window');
 
@@ -132,17 +135,17 @@ export default function PortableEssentials() {
         {/* Rename Feature */}
         <Modal visible={isRenameVisible} transparent={true} animationType="fade">
           <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'center', alignItems: 'center', padding: 20 }}>
-            <View style={{ backgroundColor: '#1e1e1e', width: '100%', borderRadius: 15, padding: 20, borderWidth: 1, borderColor: '#333' }}>
+            <View style={{ backgroundColor: '#708090', width: '100%', borderRadius: 15, padding: 20, borderWidth: 1, borderColor: '#333' }}>
               <Text style={{ color: 'white', fontSize: 18, fontWeight: 'bold', marginBottom: 15 }}>Rename Item</Text>
               <TextInput
-                style={{ backgroundColor: '#333', color: 'white', padding: 12, borderRadius: 8, marginBottom: 20 }}
+                style={{ backgroundColor: '#fff', color: 'black', padding: 12, borderRadius: 8, marginBottom: 20 }}
                 value={newName}
                 onChangeText={setNewName}
                 autoFocus={true}
               />
               <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
                 <TouchableOpacity onPress={() => setIsRenameVisible(false)} style={{ marginRight: 20 }}>
-                  <Text style={{ color: '#aaa' }}>Cancel</Text>
+                  <Text style={{ color: '#fff' }}>Cancel</Text>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={saveRename}>
                   <Text style={{ color: '#2ECC71', fontWeight: 'bold' }}>Save</Text>

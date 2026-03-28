@@ -174,7 +174,7 @@ export default function GeofenceSetup() {
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
-      <SafeAreaView style={[styles.container, { backgroundColor: "#000" }]}>
+      <SafeAreaView style={[styles.container, { backgroundColor: "#6B7A74" }]}>
         <View style={{ flex: 1, paddingHorizontal: 20 }}>
           <View style={styles.header}>
             <TouchableOpacity
@@ -268,7 +268,7 @@ export default function GeofenceSetup() {
           <View style={styles.toggleRow}>
             <View>
               <Text style={styles.label}>Enable Geofencing</Text>
-              <Text style={{ color: "#666", fontSize: 12 }}>
+              <Text style={{ color: "#95a5a6", fontSize: 12 }}>
                 Alert when leaving this area
               </Text>
             </View>

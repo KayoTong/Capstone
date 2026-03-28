@@ -1,10 +1,15 @@
-import { checklistStore, ChecklistItem } from '@/src/store/checklistStore';
+import { ChecklistItem, checklistStore } from '@/src/store/checklistStore';
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
-import { 
-  FlatList, Image, StyleSheet, Text, TouchableOpacity, 
-  View, Modal, Pressable, Dimensions, TextInput 
+import { useEffect, useState } from 'react';
+import {
+  Dimensions,
+  FlatList, Image,
+  Modal, Pressable,
+  StyleSheet, Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -49,7 +54,7 @@ export default function HistoryScreen() {
         {item.photoUri ? (
           <Image source={{ uri: item.photoUri }} style={styles.itemImage} />
         ) : (
-          <View style={styles.placeholderIcon}><Ionicons name="cube" size={24} color="#4A5D52" /></View>
+          <View style={styles.placeholderIcon}><Ionicons name="cube" size={24} color="#2ECC71" /></View>
         )}
       </TouchableOpacity>
 
@@ -133,12 +138,12 @@ export default function HistoryScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#070F0A' },
+  container: { flex: 1, backgroundColor: '#6B7A74' },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 20, minHeight: 70 },
   headerTitle: { fontSize: 20, fontWeight: 'bold', color: '#fff' },
-  searchBarContainer: { flex: 1, flexDirection: 'row', backgroundColor: '#12231A', borderRadius: 15, paddingHorizontal: 15, alignItems: 'center', height: 45 },
+  searchBarContainer: { flex: 1, flexDirection: 'row', backgroundColor: '#6B7A74', borderRadius: 15, paddingHorizontal: 15, alignItems: 'center', height: 45 },
   searchInput: { flex: 1, color: '#fff', fontSize: 16 },
-  sectionTitle: { color: '#4A5D52', fontSize: 12, fontWeight: '800', marginTop: 10, marginBottom: 15, letterSpacing: 2 },
+  sectionTitle: { color: '#fff', fontSize: 12, fontWeight: '800', marginTop: 10, marginBottom: 15, letterSpacing: 2 },
   listContent: { paddingHorizontal: 20, paddingBottom: 120 },
   card: { flexDirection: 'row', backgroundColor: '#12231A', borderRadius: 25, padding: 12, marginBottom: 12, alignItems: 'center' },
   imageContainer: { width: 55, height: 55, borderRadius: 27.5, backgroundColor: '#E8F3ED', overflow: 'hidden' },

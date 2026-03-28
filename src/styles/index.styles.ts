@@ -3,7 +3,7 @@ import { StyleSheet } from "react-native";
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#050c08",
+    backgroundColor: "#6B7A74",
     alignItems: "center",
     justifyContent: "space-between",
     paddingVertical: 80,
@@ -14,19 +14,21 @@ export const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 120,
     borderWidth: 1,
-    borderColor: "rgba(46, 204, 113, 0.15)",
+    //borderColor: "rgba(46, 204, 113, 0.15)",
+    borderColor: "#2ECC71"
   },
   waveInner: {
     padding: 15,
     borderRadius: 100,
     borderWidth: 2,
-    borderColor: "rgba(46, 204, 113, 0.3)",
+    //borderColor: "rgba(46, 204, 113, 0.3)",
+    borderColor: "#2ECC71",
   },
   iconCircle: { // This helps style the icon circle
     width: 80,
     height: 80,
     borderRadius: 20,
-    backgroundColor: "#111d15",
+    backgroundColor: "#6B7A74",
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 20,
@@ -44,7 +46,7 @@ export const styles = StyleSheet.create({
   },
   logoText: { color: "white", fontSize: 52, fontWeight: "bold" },
   tagline: {
-    color: "#888",
+    color: "#fff",
     fontSize: 18,
     textAlign: "center",
     marginTop: 10,
@@ -60,7 +62,7 @@ export const styles = StyleSheet.create({
     alignItems: "center",
   },
   getStartedText: {
-    color: "#0A1A10",
+    color: "#fff",
     fontSize: 20,
     fontWeight: "bold",
     marginRight: 10,

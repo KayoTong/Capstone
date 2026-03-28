@@ -3,12 +3,12 @@ import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { onAuthStateChanged } from 'firebase/auth';
 import React, { useEffect, useState } from 'react';
 import { Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { styles } from "../src/styles/Home.styles";
-import { auth, } from '../firebaseConfig';
-import { onAuthStateChanged } from 'firebase/auth';
+import { auth, } from '../../firebaseConfig';
+import { styles } from "../../src/styles/Home.styles";
 
 export default function FinalHomeScreen() { // Main home screen displaying user's item status overview, with navigation to profile, dashboard, and how it works sections
   const router = useRouter();
@@ -91,7 +91,7 @@ export default function FinalHomeScreen() { // Main home screen displaying user'
         </Text>
         
         <View style={styles.statusRow}>
-          <Text style={styles.locationText}>📍 Home Location Set</Text>
+          <Text style={styles.locationText}>Home Location Set</Text>
           <Text style={styles.divider}>•</Text>
           <View style={styles.activeBadge}>
             <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#2ECC71', marginRight: 6 }} />
@@ -100,7 +100,7 @@ export default function FinalHomeScreen() { // Main home screen displaying user'
         </View>
 
         {/* 1. ALERT CARD */}
-        <View style={[styles.alertCard, { borderLeftColor: totalCount === 0 ? '#ccc' : '#2ECC71', backgroundColor: totalCount === 0 ? '#f9f9f9' : '#f2fff7' }]}>
+        <View style={[styles.alertCard, { borderLeftColor: totalCount === 0 ? '#ccc' : '#4A5D52', backgroundColor: totalCount === 0 ? '#f9f9f9' : '#12231A' }]}>
           <View style={styles.alertHeader}>
             <View style={styles.alertIconBg}>
               <Text style={{ fontSize: 24 }}>{totalCount === 0 ? "📦" : "✅"}</Text>
@@ -116,7 +116,7 @@ export default function FinalHomeScreen() { // Main home screen displaying user'
 
         {/* 2. ITEMS OVERVIEW SECTION (Reverted name) */}
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionLabel}>📊 Items Overview</Text>
+          <Text style={styles.sectionLabel}> Items Overview</Text>
           <TouchableOpacity onPress={() => router.push('/dashboard')}>
             <Text style={styles.viewAll}>View All →</Text>
           </TouchableOpacity>
@@ -125,7 +125,7 @@ export default function FinalHomeScreen() { // Main home screen displaying user'
         <View style={styles.statsGrid}>
           <StatBox count={totalCount} label="Total" color="#2ECC71" />
           <StatBox count={nearbyCount} label="Nearby" color="#2ECC71" />
-          <StatBox count={awayCount} label="Away" color="#f39c12" />
+          <StatBox count={awayCount} label="Away" color="#2ECC71" />
         </View>
 
         {/* 3. LOCATION SETTINGS CARD */}
@@ -133,7 +133,7 @@ export default function FinalHomeScreen() { // Main home screen displaying user'
         <TouchableOpacity 
           style={{ 
             flexDirection: 'row', 
-            backgroundColor: '#fff', 
+            backgroundColor: '#12231A', 
             padding: 15, 
             borderRadius: 12, 
             alignItems: 'center',
@@ -147,8 +147,8 @@ export default function FinalHomeScreen() { // Main home screen displaying user'
             <Ionicons name="map-outline" size={24} color="#2ECC71" />
           </View>
           <View style={{ flex: 1, marginLeft: 15 }}>
-            <Text style={{ fontWeight: 'bold', fontSize: 16 }}>Edit Home Zone</Text>
-            <Text style={{ color: '#888', fontSize: 13 }}>Adjust your GPS detection radius.</Text>
+            <Text style={{ fontWeight: 'bold', fontSize: 16, color: '#2ECC71' }}>Edit Home Zone</Text>
+            <Text style={{ color: '#95a5a6', fontSize: 13 }}>Adjust your GPS detection radius.</Text>
           </View>
           <Ionicons name="chevron-forward" size={20} color="#ccc" />
         </TouchableOpacity>
@@ -166,7 +166,7 @@ export default function FinalHomeScreen() { // Main home screen displaying user'
         <Ionicons name="add" size={32} color="white" />
       </TouchableOpacity>
 
-      {/* 5. TAB BAR - Keeping History Tab for your logs */}
+      {/* 5. TAB BAR - Keeping History Tab for your logs 
       <View style={styles.tabBarWrapper}>
         <View style={styles.tabBar}>
           <TabItem emoji="🏠" label="Home" active onPress={undefined} />
@@ -174,7 +174,7 @@ export default function FinalHomeScreen() { // Main home screen displaying user'
           <TabItem emoji="📦" label="Items" onPress={() => router.push('/dashboard')} />
           <TabItem emoji="👤" label="Profile" onPress={() => router.push('/profile')} />
         </View>
-      </View>
+      </View>*/}
     </SafeAreaView>
     </>
   );
@@ -198,9 +198,9 @@ const MenuListItem = ({ icon, name, sub, border = true, onPress }: any) => (
   </TouchableOpacity>
 );
 
-const TabItem = ({ emoji, label, active = false, onPress }: any) => (
+{/*const TabItem = ({ emoji, label, active = false, onPress }: any) => (
   <TouchableOpacity style={styles.tabItem} onPress={onPress}>
     <Text style={{ fontSize: 26, marginBottom: 4 }}>{emoji}</Text>
     <Text style={[styles.tabLabel, active && { color: '#2ECC71', fontWeight: 'bold' }]}>{label}</Text>
   </TouchableOpacity>
-);
+);*/}
