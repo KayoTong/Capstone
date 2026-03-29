@@ -12,11 +12,11 @@ import { styles } from "../../src/styles/Home.styles";
 
 export default function FinalHomeScreen() {
   // Main home screen displaying user's item status overview, with navigation to profile, dashboard, and how it works sections
-  const router = useRouter();
+  const router = useRouter(); //router is a variable that allows us to switch between different screens in our app. useRouter is a tool used to connect code with the naviagtion so we can switch between screens when certain buttons are pressed.
   const [items, setItems] = useState<ChecklistItem[]>(
     checklistStore.getItems(),
-  );
-  const [profilePicUri, setProfilePicUri] = useState<string | null>(null);
+  ); // items store an array of checklist items that the user added to their collection. setItems allows the user to add or delete items.useState gets the list of iteme from the checklistStore, which holds the storage of the checklist items. checklistStore.getItems is a function that retrieves the current list of items.
+  const [profilePicUri, setProfilePicUri] = useState<string | null>(null); // Stores the photo's address (string) or nothing (null); setProfilePicUri updates it and refreshes the screen.
 
   // helper to generate per-user key for profile image
   const profileKey = (uid?: string) =>
@@ -25,7 +25,9 @@ export default function FinalHomeScreen() {
   useEffect(() => {
     // whenever the authenticated user changes we need to reload the data
     const unregisterAuth = onAuthStateChanged(auth, async (user) => {
+      // onAuthStateChanged is a tracker that executes code whenever the user's login status changes; unregisterAuth stores the unsubscribe function used to stop the tracker.
       if (user) {
+        //if the user is successfully logged in, checklistStore.loadFromDisk(user.uid) retreives the user's checklist items from the phones storage based on the user id.
         await checklistStore.loadFromDisk(user.uid);
         setItems([...checklistStore.getItems()]);
 
@@ -46,6 +48,7 @@ export default function FinalHomeScreen() {
     });
 
     return () => {
+      //These kill the background processes that occur when the user is closing the current screen
       unregisterAuth();
       unsubscribe();
     };
@@ -53,11 +56,12 @@ export default function FinalHomeScreen() {
 
   useFocusEffect(
     React.useCallback(() => {
+      //saves the function in memory so it doesn't get recreated everytime the screen re-renders
       const loadProfilePic = async () => {
         const storedUri = await AsyncStorage.getItem(profileKey());
-        setProfilePicUri(storedUri);
+        setProfilePicUri(storedUri); //retrieves the profile picture URI and updates it the current screen.
       };
-      loadProfilePic();
+      loadProfilePic(); //this function call invokes the entire process of getting the profile picture URI from storage
     }, []),
   );
 

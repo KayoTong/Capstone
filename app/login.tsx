@@ -7,17 +7,17 @@ import { Alert, KeyboardAvoidingView, Platform, Text, TextInput, TouchableOpacit
 import { auth } from '../firebaseConfig';
 import { styles } from '../src/styles/login.styles'; // Assuming you have a separate styles file for the login screen
 export default function LoginScreen() { // Main login/signup screen for user authentication
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const router = useRouter();
+  const [email, setEmail] = useState(''); //Email is a variable that holds the user's email as a string, setEmail is a function that allows the app to update or change the email, and useState is a tool that saves the changes made so the user can see what they just typed in the email input field by calling the phone's screen to refresh the current page.
+  const [password, setPassword] = useState(''); // This behaves the same as the previous line of code
+  const [loading, setLoading] = useState(false); //When a user clicks a button, the app will load. Loading stores whether the app is in a loading state(the app is busy:true) or the app isn't(the app is ready to be used:false). setLoading allows the app to change the loading state. useState(false) the app that it starts with the app being ready by default
+  const router = useRouter(); //router is a variable that allows us to switch between different screens in our app. useRouter is a tool used to connect code with the naviagtion so we can switch between screens when certain buttons are pressed.
 
   const handleAuth = async (type: 'login' | 'signup') => {  // Handle both login and signup logic based on the type parameter
-    if (!email || !password) return Alert.alert("Required", "Please enter email and password.");
-    setLoading(true);
+    if (!email || !password) return Alert.alert("Required", "Please enter email and password."); // An if statement to detect the user didn't enter any email address nor password. It will notify the user that you need to include both information
+    setLoading(true); //Setting loading to true prevents the user from clicking the login or signing button multiple times while the app is still processing the first click.
     try {
       if (type === 'login') { // Attempt to sign in the user with Firebase authentication
-        const cred = await signInWithEmailAndPassword(auth, email, password);
+        const cred = await signInWithEmailAndPassword(auth, email, password); //cred holds the user's credentials after they successfully signed in sufh as the user id. It proves to the app that you are officially logged in. To do this, await tell the phone to wait for the sign in process to complete while signInWithEmailandPassword is a pre-built in tool from Firebase that connects the app to Firebase for user authentication 
         // reload data for this user
         await checklistStore.loadFromDisk(cred.user.uid);
         router.replace('/home'); 
@@ -30,7 +30,7 @@ export default function LoginScreen() { // Main login/signup screen for user aut
     } catch (error: any) {
       Alert.alert("Auth Error", error.message);
     } finally {
-      setLoading(false);
+      setLoading(false); // At the end of authentication, we set loading to false because that process was completed, and we want the user to connect to the app again.
     }
   };
 

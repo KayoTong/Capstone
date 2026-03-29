@@ -5,15 +5,14 @@ import { StatusBar, Text, TouchableOpacity, View } from "react-native";
 import { styles } from "../src/styles/index.styles";
 
 export default function WelcomeScreen() {
-  const router = useRouter();
+  const router = useRouter(); //router is a variable that allows us to switch between different screens in our app. useRouter is a tool used to connect code with the naviagtion so we can switch between screens when certain buttons are pressed.
 
   const handlePress = async () => {
     try {
-      // 1. Check if the user has finished the 15-week setup before
       const hasCompleted = await AsyncStorage.getItem("hasCompletedSetup");
-
+      //Checks the phone's memory to see if the setup is already done. If it is, it sends the user to the home screen. If not, it sends them to the login screen.
       if (hasCompleted === "true") {
-        // Returning User -> Go straight to Home
+        // Returning User goes straight to Home. replace  is the action that causes the screen to switch, and "/home" is the name of the screen we want to switch to.
         router.replace("/home");
       } else {
         // New User -> Go to Login/Sign Up first
