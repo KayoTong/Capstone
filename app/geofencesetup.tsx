@@ -25,6 +25,7 @@ export default function GeofenceSetup() {
   const GEOFENCE_TASK_NAME = "GEOFENCE_CHECK"; // Matches the task name in _layout.tsx
 
   type MapRegion = {
+    // MapRegion is a custom type that defines the specific area shown on a map; it stores the center point (latitude/longitude) and the "zoom level" (deltas) to determine how much of the surrounding area is visible.
     latitude: number;
     longitude: number;
     latitudeDelta: number;
@@ -40,11 +41,13 @@ export default function GeofenceSetup() {
   // Function to snap map to wherever the phone (or Fake GPS) is right now
   async function handleRecenter() {
     try {
-      setLoading(true);
+      setLoading(true); // Sets the loading state to true to show a visual indicator (like a spinner) while the app fetches the location.
       const loc = await Location.getCurrentPositionAsync({
-        accuracy: Location.Accuracy.Balanced,
+        // This line requests the phone's current GPS coordinates (latitude and longitude) one time.
+        accuracy: Location.Accuracy.Balanced, // Balanced accuracy provides a reliable location for the map without draining the phone's battery as much as "High" accuracy would.
       });
       const newRegion = {
+        //Creates a new region object that centers the amp to the phone's current location using latitude and longitude while keeping the app zoomed into a small area (0.01 delta). Higher numbers such as 0.1 would show a larger zoom area.
         latitude: loc.coords.latitude,
         longitude: loc.coords.longitude,
         latitudeDelta: 0.01,
@@ -70,20 +73,23 @@ export default function GeofenceSetup() {
         setLoading(true);
 
         // 1. Get Location Permissions
-        const { granted } = await Location.requestForegroundPermissionsAsync();
+        const { granted } = await Location.requestForegroundPermissionsAsync(); // Calls expo's location api to request foreground location permission while the app is open
         if (!granted) {
+          //If user denies location permission, we sent an alert message that pops up in the app
           Alert.alert("Permission Denied", "Location access is needed.");
-          setLoading(false);
-          return;
+          setLoading(false); //The app stops loading because permission wasn't granted, so we don't want to keep showing the loading spinner indefinitely
+          return; //Exit the function early so no further location logic runs
         }
 
         // 2. Load Saved Settings (AsyncStorage)
-        const saved = await getGeofence();
+        const saved = await getGeofence(); //Attempt to load any previously saved geofencing data from the phone's storage.
 
         if (saved) {
-          setEnabled(saved.enabled);
-          setRadius(saved.radiusMeters || DEFAULT_RADIUS);
+          //If we find a previous geofence saved, we load the map with those settings
+          setEnabled(saved.enabled); // This turns the geofence toggle (on or off switch) to the position the user last left it
+          setRadius(saved.radiusMeters || DEFAULT_RADIUS); //This sets the size of the radius circle. If the saved data is missing a size, it falls back to a standard default value
           if (saved.latitude && saved.longitude) {
+            //If we find the center point based on the saved data, we set our map to a specifc region centerd around those coordinated with a small zoom area.
             setRegion({
               latitude: saved.latitude,
               longitude: saved.longitude,
@@ -115,13 +121,13 @@ export default function GeofenceSetup() {
   }, []);
 
   async function handleSave() {
-    if (!region || isSaving) return;
-    const user = auth.currentUser;
-    setIsSaving(true);
+    if (!region || isSaving) return; //This stops the functions immediately if there are no gps coordinated seletected and if the user already clicked 'saved' and the app is still processing that first click. This prevents double clicking from causing errors
+    const user = auth.currentUser; //Identifies the currently logged-in user to ensure location is saved to the correct account
+    setIsSaving(true); // The app is now in the saving state
 
     try {
       if (user) {
-        // 1. Firebase update
+        // 1. Firebase update - saves geofence settings to the user's account
         await updateGeofenceSettings(
           user.uid,
           region.latitude,
@@ -129,7 +135,7 @@ export default function GeofenceSetup() {
           radius,
         );
 
-        // 2. Local storage update
+        // 2. Local storage update - saves geofence settings to the phone's storage
         await saveGeofence({
           enabled: enabled,
           latitude: region.latitude,
@@ -140,6 +146,7 @@ export default function GeofenceSetup() {
         // 3. Register/Unregister the actual Background Geofence
         if (enabled) {
           await Location.startGeofencingAsync(GEOFENCE_TASK_NAME, [
+            //startGeofencingAsync is an expo tool that takes in a task name and watchfor when the user enters or leaves a specific geographic boundary
             {
               identifier: "HomeZone",
               latitude: region.latitude,
