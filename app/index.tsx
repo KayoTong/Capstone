@@ -1,14 +1,8 @@
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Redirect, Stack, useRouter } from "expo-router";
-import {
-  StatusBar,
-  Text,
-  TouchableOpacity,
-  View
-} from "react-native";
+import { Stack, useRouter } from "expo-router";
+import { StatusBar, Text, TouchableOpacity, View } from "react-native";
 import { styles } from "../src/styles/index.styles";
-
 
 export default function WelcomeScreen() {
   const router = useRouter();
@@ -43,7 +37,7 @@ export default function WelcomeScreen() {
         </View>
 
         <Text style={styles.logoText}>
-          <Text style={{color: "#2ECC71" }}> BeforeIGo</Text>
+          <Text style={{ color: "#2ECC71" }}> BeforeIGo</Text>
         </Text>
         <Text style={styles.tagline}>Peace of mind when you leave home.</Text>
 

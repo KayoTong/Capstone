@@ -3,13 +3,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { CameraView, useCameraPermissions } from "expo-camera"; // we are adding camera functionality
 import { useRouter } from "expo-router";
 import { useRef, useState } from "react"; // we will use useRef to reference the camera component and useState to manage state
-import {
-    Image,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
-} from "react-native";
+import { Image, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { styles } from "../src/styles/addItem.styles"; // import styles for the AddItem component
 
 export default function AddItem() {
@@ -18,13 +12,15 @@ export default function AddItem() {
   const [photoUri, setPhotoUri] = useState<string | null>(null); // state to hold the captured photo URI
   const [itemName, setItemName] = useState(""); // state to hold the item name
   const cameraRef = useRef<CameraView | null>(null); // reference to the camera component
-  const [showCamera, setShowCamera] = useState(false); // state to toggle camera view
+  const [showCamera, setShowCamera] = useState(false);
 
-  if (!permission) { // permission is still loading
+  if (!permission) {
+    // permission is still loading
     return <View />;
   }
 
-  if (!permission.granted) { // if permission is not granted, show a message and button to request permission
+  if (!permission.granted) {
+    // if permission is not granted, show a message and button to request permission
     return (
       <View style={styles.permissionContainer}>
         <Text style={styles.permissionText}>
@@ -40,13 +36,14 @@ export default function AddItem() {
     );
   }
 
-  if (!photoUri) { // if no photo is taken yet, show the camera view
+  if (!photoUri) {
+    // if no photo is taken yet, show the camera view
     return (
       <View style={{ flex: 1 }}>
         <CameraView ref={cameraRef} style={{ flex: 1 }} facing="back" />
 
-        {/* Capture button */} 
-        <View style={styles.captureContainer}> 
+        {/* Capture button */}
+        <View style={styles.captureContainer}>
           <TouchableOpacity
             style={styles.captureButton}
             onPress={async () => {
