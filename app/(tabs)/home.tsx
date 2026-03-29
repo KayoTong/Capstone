@@ -98,9 +98,99 @@ export default function FinalHomeScreen() { // Main home screen displaying user'
             <Text style={styles.activeText}>Monitoring Active</Text>
           </View>
         </View>
+        
+        {/* Displays 'Your Items' to the user */ }
+        <Text
+          style={{
+            color: '#fff',
+            fontSize: 18,
+            fontWeight: 'bold',
+            marginTop: 14,
+            marginBottom: 10,
+          }}
+        >
+          Your Items
+          </Text>
+        
+        {/* Added a carousel block to let user see items they have saved 
+            on the Home Page as well as the 'Items' page */ }
+        {items.length === 0 ? (
+          <View
+            style={{
+              backgroundColor: '#12231A',
+              padding: 20,
+              borderRadius: 16,
+              marginBottom: 25,
+              alignItems: 'center',
+            }}
+        >
+          <Text style={{ color: '#fff', fontSize: 15, marginBottom: 8 }}>
+            No items added yet
+          </Text>
+          <Text style={{ color: '#95a5a6', fontSize: 13 }}>
+            Add your first item from the 'Items' tab
+          </Text>
+        </View>
+        ) : (
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ paddingRight: 20, paddingBottom: 10 }}
+          >
+            {items.map((item) => (
+              <View 
+                key={item.id}
+                style={{
+                  width:160,
+                  backgroundColor: '#12231A',
+                  borderRadius: 16,
+                  padding: 15,
+                  marginRight: 12,
+                  borderWidth: 1,
+                  borderColor: '#f1f1f1',
+                }}
+              >
+                <View
+                  style={{
+                    width: '100%',
+                    height: 90,
+                    borderRadius: 12,
+                    backgroundColor: '#E8F8F0',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    marginBottom: 10,
+                    overflow: 'hidden',
+                  }}
+                >
+                  {item.photoUri ? (
+                    <Image
+                      source={{ uri: item.photoUri }}
+                      style={{ width: '100%', height: '100%' }}
+                      resizeMode="cover"
+                    />
+                  ) : (
+                    <Ionicons name="cube-outline" size={32} color="#2ECC71" />
+                  )}
+                </View>
 
-        {/* 1. ALERT CARD */}
-        <View style={[styles.alertCard, { borderLeftColor: totalCount === 0 ? '#ccc' : '#4A5D52', backgroundColor: totalCount === 0 ? '#f9f9f9' : '#12231A' }]}>
+                <Text
+                  style={{color: '#fff', fontSize: 16, fontWeight: 'bold' }}
+                  numberOfLines={1}
+                >
+                  {item.name}
+                </Text>
+
+                <Text style={{color: item.active ? '#2ECC71' : '#95A5A6', marginTop :6 }}>
+                  {item.active ? 'Nearby' : 'Away'}
+                </Text>
+              </View>
+            ))}
+          </ScrollView>
+        )}
+
+
+        {/* 1. ALERT CARD 
+        <View style={[styles.alertCard, { borderLeftColor: totalCount === 0 ? '#ccc' : '#fff', backgroundColor: totalCount === 0 ? '#f9f9f9' : '#12231A' }]}>
           <View style={styles.alertHeader}>
             <View style={styles.alertIconBg}>
               <Text style={{ fontSize: 24 }}>{totalCount === 0 ? "📦" : "✅"}</Text>
@@ -112,7 +202,7 @@ export default function FinalHomeScreen() { // Main home screen displaying user'
               </Text>
             </View>
           </View>
-        </View>
+        </View> */}
 
         {/* 2. ITEMS OVERVIEW SECTION (Reverted name) */}
         <View style={styles.sectionHeader}>
@@ -197,10 +287,3 @@ const MenuListItem = ({ icon, name, sub, border = true, onPress }: any) => (
     <Ionicons name="chevron-forward" size={18} color="#eee" />
   </TouchableOpacity>
 );
-
-{/*const TabItem = ({ emoji, label, active = false, onPress }: any) => (
-  <TouchableOpacity style={styles.tabItem} onPress={onPress}>
-    <Text style={{ fontSize: 26, marginBottom: 4 }}>{emoji}</Text>
-    <Text style={[styles.tabLabel, active && { color: '#2ECC71', fontWeight: 'bold' }]}>{label}</Text>
-  </TouchableOpacity>
-);*/}

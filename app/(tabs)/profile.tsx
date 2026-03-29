@@ -10,6 +10,7 @@ import { EmailAuthProvider, reauthenticateWithCredential, updateEmail, updatePas
 import { useEffect, useState } from 'react';
 import { Alert, Image, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { auth } from '../../firebaseConfig';
+import { styles } from '../../src/styles/login.styles';
 
 export default function ProfileScreen() { // Main profile screen for user settings and profile picture management
   const router = useRouter();
@@ -100,9 +101,6 @@ export default function ProfileScreen() { // Main profile screen for user settin
       <Stack.Screen options={{ headerShown: false }} />
       
       <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 20 }}>
-        <TouchableOpacity onPress={() => router.back()} style={{ marginRight: 15 }}>
-          <Ionicons name="arrow-back" size={24} color="#fff" />
-        </TouchableOpacity>
         <Text style={{ color: '#fff', fontSize: 24, fontWeight: 'bold' }}>Profile Settings</Text>
       </View>
 
@@ -124,42 +122,102 @@ export default function ProfileScreen() { // Main profile screen for user settin
       </View>
 
       {/* Email */}
-      <Text style={{ color: '#2ECC71' ,fontSize: 18, fontWeight: 'bold', marginBottom: 10 }}>Email</Text>
-      <TextInput
-        value={email}
-        onChangeText={setEmail}
-        placeholder="Enter your email"
-        style={{ borderWidth: 1, borderColor: '#ddd', padding: 10, borderRadius: 8, marginBottom: 10, backgroundColor: '#fff' }}
-        keyboardType="email-address"
-        autoCapitalize="none"
-      />
-      <TouchableOpacity onPress={updateEmailHandler} style={{ backgroundColor: '#2ECC71', padding: 12, borderRadius: 8, alignItems: 'center', marginBottom: 20 }}>
-        <Text style={{ color: 'white', fontWeight: 'bold' }}>Update Email</Text>
+      <Text style={{color: '#fff', fontSize: 18, fontWeight: 'bold', marginBottom: 10 }}>
+        Email
+      </Text>
+
+      <View style={styles.inputGroup}>
+        <Ionicons name="mail-outline" 
+                  size={20} 
+                  color="#2ECC71" 
+                  style={styles.icon}
+        />
+        <TextInput
+          value={email}
+          onChangeText={setEmail}
+          placeholder="Enter your email"
+          placeholderTextColor="#000"
+          style={styles.input}
+          keyboardType="email-address"
+          autoCapitalize="none"
+        />
+      </View>
+      <TouchableOpacity onPress={updateEmailHandler} style={styles.mainBtn}>
+        <Text style={styles.btnText}>Update Email</Text>
       </TouchableOpacity>
 
       {/* Password */}
-      <Text style={{ fontSize: 18, color: '#fff', fontWeight: 'bold', marginBottom: 10 }}>Change Password</Text>
-      <Text style={{ fontSize: 14, color: '#fff', marginBottom: 10 }}>Current Password</Text>
+      <Text style = {{ 
+        fontSize: 18, 
+        color: '#fff', 
+        fontWeight: 'bold', 
+        marginBottom: 16,
+        marginTop: 10
+        }}
+      >
+        Change Password
+      </Text>
+
+      <Text style = {{ 
+        fontSize: 14, 
+        color: '#fff', 
+        fontWeight: 'bold', 
+        marginBottom: 8,
+      }}
+      >
+        Current Password
+      </Text>
+
+      <View style={[styles.inputGroup, {marginBottom: 18}]}>
+        <Ionicons
+          name="lock-closed-outline"
+          size={20}
+          color="#2ECC71"
+          style={styles.icon}
+      />
       <TextInput
         value={currentPassword}
         onChangeText={setCurrentPassword}
         placeholder="Enter Current Password"
+        placeholderTextColor="#000"
         secureTextEntry
-        style={{backgroundColor: '#fff', borderWidth: 1, borderColor: '#ddd', padding: 10, borderRadius: 8, marginBottom: 15 }}
+        style={styles.input}
         autoCapitalize="none"
       />
-      <Text style={{ fontSize: 14, color: '#fff', marginBottom: 10 }}>New Password</Text>
+      </View>
+
+      <Text
+        style={{
+          fontSize: 14,
+          color: '#fff',
+          fontWeight: 'bold',
+          marginBottom: 8,
+        }}
+      >
+        New Password
+      </Text>
+
+      <View style={[styles.inputGroup, { marginBottom: 20 }]}>
+        <Ionicons
+          name="lock-closed-outline"
+          size={20}
+          color="#2ECC71"
+          style={styles.icon}
+      />
       <TextInput
         value={password}
         onChangeText={setPassword}
         placeholder="Enter New Password"
+        placeholderTextColor="#000"
         secureTextEntry
-        style={{backgroundColor: '#fff', borderWidth: 1, borderColor: '#ddd', padding: 10, borderRadius: 8, marginBottom: 10,}}
+        style={styles.input}
         autoCapitalize="none"
       />
-      <TouchableOpacity onPress={updatePasswordHandler} style={{ backgroundColor: '#2ECC71', padding: 12, borderRadius: 8, alignItems: 'center', marginBottom: 20 }}>
-        <Text style={{ color: 'white', fontWeight: 'bold' }}>Update Password</Text>
-      </TouchableOpacity>
+    </View>
+
+    <TouchableOpacity onPress={updatePasswordHandler} style={styles.mainBtn}>
+      <Text style={styles.btnText}>Update Password</Text>
+    </TouchableOpacity>
 
       {/* Logout */}
       <TouchableOpacity onPress={async () => {
@@ -168,7 +226,7 @@ export default function ProfileScreen() { // Main profile screen for user settin
           // also clear stored picture so next user starts fresh
           await AsyncStorage.removeItem(profileKey());
           router.replace('/');
-        }} style={{ backgroundColor: '#e74c3c', padding: 12, borderRadius: 8, alignItems: 'center' }}>
+        }} style={{ backgroundColor: '#e74c3c', padding: 12, borderRadius: 8, alignItems: 'center', marginTop: 40 }}>
         <Text style={{ color: 'white', fontWeight: 'bold' }}>Logout</Text>
       </TouchableOpacity>
     </ScrollView>

@@ -12,7 +12,7 @@ export const styles = StyleSheet.create({
   icon: { marginRight: 10 },
   input: { flex: 1, color: 'black', paddingVertical: 18, fontSize: 16 },
   mainBtn: { backgroundColor: '#2ECC71', padding: 20, borderRadius: 15, alignItems: 'center', marginTop: 15 },
-  btnText: { color: '#0A1A10', fontWeight: 'bold', fontSize: 18 },
+  btnText: { color: '#fff', fontWeight: 'bold', fontSize: 18 },
   signupBtn: { marginTop: 25, alignItems: 'center' },
   signupText: { color: 'white', fontSize: 15 },
   greenText: { color: '#2ecc71', fontWeight: 'bold' }

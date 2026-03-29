@@ -8,6 +8,8 @@ import {
 
 
 
+
+
   FlatList,
   Image,
   Modal,
@@ -66,10 +68,7 @@ export default function PortableEssentials() {
       <SafeAreaView style={styles.container}>
         <View style={{ flex: 1 }}>
           <View style={styles.header}>
-            <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-              <Ionicons name="arrow-back" size={24} color="white" />
-            </TouchableOpacity>
-            <Text style={styles.titleText}>Portable Essentials</Text>
+            <Text style={styles.titleText}>My Items</Text>
           </View>
           
           <FlatList

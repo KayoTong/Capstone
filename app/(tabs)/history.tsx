@@ -83,9 +83,6 @@ export default function HistoryScreen() {
       <View style={styles.header}>
         {!isSearching ? (
           <>
-            <TouchableOpacity onPress={() => router.replace('/home')}>
-              <Ionicons name="arrow-back" size={24} color="#fff" />
-            </TouchableOpacity>
             <Text style={styles.headerTitle}>History</Text>
             <TouchableOpacity onPress={() => setIsSearching(true)}>
               <Ionicons name="search-outline" size={24} color="#fff" />
