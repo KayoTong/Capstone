@@ -12,12 +12,16 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  ACTION_CONFIRM_SAFE,
+  ACTION_NAVIGATE_HOME,
+  formatTriggeredAt,
+  getFirstParam,
+  getTriggeredLabel,
+  parseItemsParam
+} from "../src/services/notificationService";
 import { checklistStore } from "../src/store/checklistStore";
 import { styles } from "../src/styles/leave-check.styles";
-
-const FALLBACK_ITEMS = ["Wallet", "Keys", "Phone"]; // Default items to show if no valid items are provided via query params.
-const CONFIRM_SAFE_ACTION = "beforeigo-confirm-safe"; //  Action identifier for confirming safety, used to determine initial state and button behavior.
-const NAVIGATE_HOME_ACTION = "beforeigo-navigate-home";
 
 type LeaveCheckParams = {
   // Define the expected query parameters for the leave check screen.
@@ -31,42 +35,6 @@ type LeaveCheckParams = {
   homeLat?: string;
   homeLng?: string;
 };
-
-function getFirstParam(value: string | string[] | undefined) {
-  // Utility function to handle query parameters that may be provided as either a single string or an array of strings, ensuring we always work with a single value.
-  return Array.isArray(value) ? value[0] : value;
-}
-
-function parseItemsParam(itemsParam: string | string[] | undefined) {
-  // Parses the 'items' query parameter, which is expected to be a JSON-encoded array of strings. It includes validation and sanitization to ensure we end up with a clean array of item names to display.
-  const rawItems = getFirstParam(itemsParam);
-
-  if (!rawItems) {
-    // If no items are provided, return the fallback list.
-    return FALLBACK_ITEMS;
-  }
-
-  try {
-    // Attempt to parse the raw items string as JSON. If it's not valid JSON or doesn't conform to the expected structure, we'll catch the error and return the fallback items.
-    const parsed = JSON.parse(rawItems);
-    if (Array.isArray(parsed)) {
-      // We expect the parsed value to be an array. If it's not, we'll ignore it and use the fallback items.
-      const cleaned = parsed
-        .filter((item): item is string => typeof item === "string")
-        .map((item) => item.trim())
-        .filter(Boolean)
-        .slice(0, 3);
-
-      if (cleaned.length > 0) {
-        return cleaned;
-      }
-    }
-  } catch {
-    // Ignore malformed params and fall back to defaults.
-  }
-
-  return FALLBACK_ITEMS;
-}
 
 function getChipIcon(itemName: string) {
   // Determines which icon to display for a given item name by checking for specific keywords. This allows us to show more relevant icons for common items like wallets, keys, phones, and bags, while defaulting to a generic icon for anything else.
@@ -91,34 +59,6 @@ function getChipIcon(itemName: string) {
   return "cube-outline";
 }
 
-function getTriggeredLabel(source: string | undefined) {
-  // Provides a user-friendly label describing the source of the leave-home alert based on the 'source' query parameter. This helps users understand why they are seeing the alert and can provide context for the reminder.
-  if (source === "geofence-exit") {
-    return "Triggered as you exited your home zone.";
-  }
-
-  return "Triggered from your latest safety reminder.";
-}
-
-function formatTriggeredAt(triggeredAt: string | undefined) {
-  // Takes the 'triggeredAt' query parameter, which is expected to be a timestamp string, and formats it into a more human-readable time format. If the parameter is missing or invalid, it returns undefined, allowing the UI to conditionally display the time if it's available.
-  if (!triggeredAt) {
-    return undefined;
-  }
-
-  const parsedDate = new Date(triggeredAt);
-
-  if (Number.isNaN(parsedDate.getTime())) {
-    return undefined;
-  }
-
-  return parsedDate.toLocaleTimeString([], {
-    // Format the time in a way that's appropriate for the user's locale, showing only the hour and minute for simplicity.
-    hour: "numeric",
-    minute: "2-digit",
-  });
-}
-
 export default function LeaveCheckScreen() {
   // The main component for the leave check screen. It uses query parameters to customize the content and behavior of the screen, allowing for a dynamic and context-aware user experience. The screen includes a title, body text, a list of items to check, and actions for confirming safety or navigating home.
   const router = useRouter();
@@ -127,7 +67,7 @@ export default function LeaveCheckScreen() {
   /* REAL-TIME LOGIC: Local state to force re-render when the store changes */
   const [storeItems, setStoreItems] = useState(checklistStore.getItems());
   const [confirmed, setConfirmed] = useState(
-    getFirstParam(params.action) === CONFIRM_SAFE_ACTION,
+    getFirstParam(params.action) === ACTION_CONFIRM_SAFE,
   );
 
   /* LOGIC: Local tracking to bypass disk latency for immediate UI updates */
@@ -202,9 +142,9 @@ export default function LeaveCheckScreen() {
     : body;
 
   const actionHint =
-    getFirstParam(params.action) === NAVIGATE_HOME_ACTION
+    getFirstParam(params.action) === ACTION_NAVIGATE_HOME
       ? "Quick action selected: Navigate Home"
-      : getFirstParam(params.action) === CONFIRM_SAFE_ACTION
+      : getFirstParam(params.action) === ACTION_CONFIRM_SAFE
         ? "Quick action selected: Confirm Safe"
         : undefined;
 

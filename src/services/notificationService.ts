@@ -50,3 +50,72 @@ export function getStringValue(value: unknown) {
 
   return undefined;
 }
+
+// leave-check related constants and helper functions. I moved these from _layout.tsx as part of the march 29th refactor to make the notification logic more modular and reusable across the app (Andy)
+export function getFirstParam(value: string | string[] | undefined) {
+  // moved from leave-check.tsx (andy)
+  // Utility function to handle query parameters that may be provided as either a single string or an array of strings, ensuring we always work with a single value.
+  return Array.isArray(value) ? value[0] : value;
+}
+
+export function parseItemsParam(itemsParam: string | string[] | undefined) {
+  // moved from leave-check.tsx (Andy)
+  // Parses the 'items' query parameter, which is expected to be a JSON-encoded array of strings. It includes validation and sanitization to ensure we end up with a clean array of item names to display.
+  const rawItems = getFirstParam(itemsParam);
+
+  if (!rawItems) {
+    // If no items are provided, return the fallback list.
+    return DEFAULT_ESSENTIALS;
+  }
+
+  try {
+    // Attempt to parse the raw items string as JSON. If it's not valid JSON or doesn't conform to the expected structure, we'll catch the error and return the fallback items.
+    const parsed = JSON.parse(rawItems);
+    if (Array.isArray(parsed)) {
+      // We expect the parsed value to be an array. If it's not, we'll ignore it and use the fallback items.
+      const cleaned = parsed
+        .filter((item): item is string => typeof item === "string")
+        .map((item) => item.trim())
+        .filter(Boolean)
+        .slice(0, 3);
+
+      if (cleaned.length > 0) {
+        return cleaned;
+      }
+    }
+  } catch {
+    // Ignore malformed params and fall back to defaults.
+  }
+
+  return DEFAULT_ESSENTIALS; // We will use default essentials instead of fallback_items to prevent duplicate logic (Andy)
+}
+
+export function getTriggeredLabel(source: string | undefined) {
+  // moved from leave-check.tsx
+  // Provides a user-friendly label describing the source of the leave-home alert based on the 'source' query parameter. This helps users understand why they are seeing the alert and can provide context for the reminder.
+  if (source === "geofence-exit") {
+    return "Triggered as you exited your home zone.";
+  }
+
+  return "Triggered from your latest safety reminder.";
+}
+
+export function formatTriggeredAt(triggeredAt: string | undefined) {
+  // moved from leave-check.tsx (Andy)
+  // Takes the 'triggeredAt' query parameter, which is expected to be a timestamp string, and formats it into a more human-readable time format. If the parameter is missing or invalid, it returns undefined, allowing the UI to conditionally display the time if it's available.
+  if (!triggeredAt) {
+    return undefined;
+  }
+
+  const parsedDate = new Date(triggeredAt);
+
+  if (Number.isNaN(parsedDate.getTime())) {
+    return undefined;
+  }
+
+  return parsedDate.toLocaleTimeString([], {
+    // Format the time in a way that's appropriate for the user's locale, showing only the hour and minute for simplicity.
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
