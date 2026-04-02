@@ -13,7 +13,7 @@ jobs:
 
       - run: npm install
 
-     # - run: npx expo lint
+      # - run: npx expo lint
 
       - run: npx expo-doctor
 
@@ -23,5 +23,8 @@ jobs:
           expo-version: latest
           token: ${{ secrets.EXPO_TOKEN }}
 
+      - name: 🏗 Install EAS CLI
+        run: npm install -g eas-cli
+
       - name: 🚀 Publish Update
-        run: npx eas update --auto
+        run: eas update --auto  # Removed 'npx' here to use the global install
