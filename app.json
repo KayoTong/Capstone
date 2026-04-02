@@ -1,17 +1,20 @@
 {
-  "expo": { // https://docs.expo.dev/workflow/configuration/
-    "name": "BeforeIGo", // The name of your app as it appears on the home screen and in the app store.
-    "slug": "beforeigo", 
+  "expo": {
+    "name": "BeforeIGo",
+    "slug": "beforeigo",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/beforeigo-ios-icon-1024.png", // The icon for your app, which is used on the home screen and in the app store.
+    "icon": "./assets/images/beforeigo-ios-icon-1024.png",
     "scheme": "beforeigo",
     "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.kayotonge.beforeigo",
       "infoPlist": {
-        "UIBackgroundModes": ["location", "fetch"],
+        "UIBackgroundModes": [
+          "location",
+          "fetch"
+        ],
         "NSLocationWhenInUseUsageDescription": "BeforeIGo needs your location to set your home safety zone.",
         "NSLocationAlwaysAndWhenInUseUsageDescription": "BeforeIGo needs background location to alert you if you leave home without your essentials.",
         "NSLocationAlwaysUsageDescription": "BeforeIGo needs background location to protect your items even when the app is closed."
@@ -20,12 +23,10 @@
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/beforeigo-android-adaptive-foreground-1024.png" // The foreground image for the adaptive icon, which is used on Android devices.
+        "foregroundImage": "./assets/images/beforeigo-android-adaptive-foreground-1024.png"
       },
-     
       "predictiveBackGestureEnabled": false,
       "package": "com.kayotonge.beforeigo",
-     
       "config": {
         "googleMaps": {
           "apiKey": "AIzaSyBC4cfV8vdM3kOdqon_XJnWLCG1WXbBkQg"
@@ -64,8 +65,9 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "cf19553a-def2-4c99-bca4-1b40b1cc8c32"
+        "projectId": "83fa942e-a94b-46b9-807d-9628ee84312e"
       }
-    }
+    },
+    "owner": "kayo-to"
   }
 }
