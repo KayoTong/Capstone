@@ -2,6 +2,7 @@ import { ChecklistItem, checklistStore } from "@/src/store/checklistStore";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
+import * as Location from "expo-location"; // Added for real-time GPS coordinates
 import { Stack, useRouter } from "expo-router";
 import { onAuthStateChanged } from "firebase/auth";
 import React, { useEffect, useState } from "react";
@@ -9,6 +10,7 @@ import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { auth } from "../../firebaseConfig";
 import { styles } from "../../src/styles/Home.styles";
+import { getBeforeIGoWeather } from "../../weather";
 
 export default function FinalHomeScreen() {
   // Main home screen displaying user's item status overview, with navigation to profile, dashboard, and how it works sections
@@ -17,6 +19,9 @@ export default function FinalHomeScreen() {
     checklistStore.getItems(),
   ); // items store an array of checklist items that the user added to their collection. setItems allows the user to add or delete items.useState gets the list of iteme from the checklistStore, which holds the storage of the checklist items. checklistStore.getItems is a function that retrieves the current list of items.
   const [profilePicUri, setProfilePicUri] = useState<string | null>(null); // Stores the photo's address (string) or nothing (null); setProfilePicUri updates it and refreshes the screen.
+
+  // Weather state to store data from the Google Weather API
+  const [weather, setWeather] = useState<any>(null);
 
   // helper to generate per-user key for profile image
   const profileKey = (uid?: string) =>
@@ -47,6 +52,24 @@ export default function FinalHomeScreen() {
       setItems([...checklistStore.getItems()]);
     });
 
+    // Fetch real-time location and weather data
+    (async () => {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        // Fallback to Hunter College if permission denied
+        const data = await getBeforeIGoWeather(40.7685, -73.9646);
+        setWeather(data);
+        return;
+      }
+
+      let location = await Location.getCurrentPositionAsync({});
+      const data = await getBeforeIGoWeather(
+        location.coords.latitude,
+        location.coords.longitude,
+      );
+      setWeather(data);
+    })();
+
     return () => {
       //These kill the background processes that occur when the user is closing the current screen
       unregisterAuth();
@@ -56,7 +79,7 @@ export default function FinalHomeScreen() {
 
   useFocusEffect(
     React.useCallback(() => {
-      //saves the function in memory so it doesn't get recreated everytime the screen re-renders
+      //saves the function memory so it doesn't get recreated everytime the screen re-renders
       const loadProfilePic = async () => {
         const storedUri = await AsyncStorage.getItem(profileKey());
         setProfilePicUri(storedUri); //retrieves the profile picture URI and updates it the current screen.
@@ -68,6 +91,20 @@ export default function FinalHomeScreen() {
   const totalCount = items.length; //   Calculate total count of items, nearby (active) items, and away (inactive) items for display in the overview section
   const nearbyCount = items.filter((i) => i.active).length; // Count of active items (considered "nearby")
   const awayCount = items.filter((i) => !i.active && totalCount > 0).length; // Count of inactive items (considered "away"), only show if there are items in total
+
+  // Helper to determine which icon to show based on Google Weather text descriptions
+  const getWeatherEmoji = (condition: string) => {
+    const text = (condition || "").toLowerCase();
+
+    if (text.includes("thunderstorm")) return "⛈️";
+    if (text.includes("rain") || text.includes("drizzle")) return "🌧️";
+    if (text.includes("snow") || text.includes("ice")) return "❄️";
+    if (text.includes("cloud") || text.includes("overcast")) return "☁️";
+    if (text.includes("fog") || text.includes("mist")) return "🌫️";
+    if (text.includes("clear") || text.includes("sunny")) return "☀️";
+
+    return "☀️"; // Default to Sun for any other description
+  };
 
   return (
     // Main home screen displaying user's item status overview, with navigation to profile, dashboard, and how it works sections
@@ -111,6 +148,37 @@ export default function FinalHomeScreen() {
           <Text style={styles.mainTitle}>
             {totalCount === 0 ? "Welcome!" : "Ready to head out?"}
           </Text>
+
+          {/* Weather Section - Displays live temperature and probability of rain from Google */}
+          {weather && (
+            <View
+              style={{
+                backgroundColor: "#12231A",
+                padding: 15,
+                borderRadius: 16,
+                marginBottom: 15,
+                borderWidth: 1,
+                borderColor: "#2ECC71",
+                flexDirection: "row",
+                alignItems: "center",
+              }}
+            >
+              <Text style={{ fontSize: 32, marginRight: 15 }}>
+                {getWeatherEmoji(weather.conditionText)}
+              </Text>
+              <View style={{ flex: 1 }}>
+                <Text
+                  style={{ color: "#fff", fontSize: 20, fontWeight: "bold" }}
+                >
+                  {weather.temp}°F
+                </Text>
+                <Text style={{ color: "#95a5a6", fontSize: 12 }}>
+                  Rain: {weather.precipProb}% | UV: {weather.uv} | Humid:{" "}
+                  {weather.humidity}%
+                </Text>
+              </View>
+            </View>
+          )}
 
           <View style={styles.statusRow}>
             <Text style={styles.locationText}>Home Location Set</Text>
@@ -223,21 +291,6 @@ export default function FinalHomeScreen() {
             </ScrollView>
           )}
 
-          {/* 1. ALERT CARD 
-        <View style={[styles.alertCard, { borderLeftColor: totalCount === 0 ? '#ccc' : '#fff', backgroundColor: totalCount === 0 ? '#f9f9f9' : '#12231A' }]}>
-          <View style={styles.alertHeader}>
-            <View style={styles.alertIconBg}>
-              <Text style={{ fontSize: 24 }}>{totalCount === 0 ? "📦" : "✅"}</Text>
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.alertTitle}>{totalCount === 0 ? "No items tracked" : "Checklist Secured"}</Text>
-              <Text style={styles.alertSub}>
-                {totalCount === 0 ? "Tap the + button to add your first item." : `Monitoring ${nearbyCount} items for your next exit.`}
-              </Text>
-            </View>
-          </View>
-        </View> */}
-
           {/* 2. ITEMS OVERVIEW SECTION (Reverted name) */}
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionLabel}> Items Overview</Text>
@@ -317,16 +370,6 @@ export default function FinalHomeScreen() {
         >
           <Ionicons name="add" size={32} color="white" />
         </TouchableOpacity>
-
-        {/* 5. TAB BAR - Keeping History Tab for your logs 
-      <View style={styles.tabBarWrapper}>
-        <View style={styles.tabBar}>
-          <TabItem emoji="🏠" label="Home" active onPress={undefined} />
-          <TabItem emoji="🕒" label="History" onPress={() => router.push('/history')} />
-          <TabItem emoji="📦" label="Items" onPress={() => router.push('/dashboard')} />
-          <TabItem emoji="👤" label="Profile" onPress={() => router.push('/profile')} />
-        </View>
-      </View>*/}
       </SafeAreaView>
     </>
   );
