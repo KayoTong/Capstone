@@ -3,9 +3,16 @@ import { StyleSheet } from 'react-native';
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#6B7A74",
+    backgroundColor: "#6B7D74", // Sage background
     padding: 25,
     paddingTop: 50,
+  },
+  // Added Header layout for the top row
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 20,
   },
   headerTitle: {
     color: "white",
@@ -13,6 +20,33 @@ export const styles = StyleSheet.create({
     textAlign: "center",
     fontWeight: "bold",
   },
+  
+  // Choice Screen Cards
+  choiceCard: {
+    width: '100%', 
+    backgroundColor: '#12231A', // Dark green card
+    borderRadius: 20, 
+    padding: 25, 
+    marginBottom: 20, 
+    flexDirection: 'row', 
+    alignItems: 'center'
+  },
+  iconContainer: {
+    backgroundColor: '#2ECC71', // Vibrant green icon box
+    padding: 15, 
+    borderRadius: 15, 
+    marginRight: 20
+  },
+  cardTitle: {
+    color: 'white', 
+    fontSize: 18, 
+    fontWeight: 'bold'
+  },
+  cardSub: {
+    color: '#95A5A6', 
+    fontSize: 14
+  },
+
   imageCircle: {
     width: 150,
     height: 150,

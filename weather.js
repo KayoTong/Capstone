@@ -1,39 +1,130 @@
-// weather.js
+// weather.js (Dynamic State & Assets Version)
 
-// Secret key that authorizes the app to talk to Google's servers
 const GOOGLE_WEATHER_KEY = "AIzaSyBxAE9Ze_HcgZMvduIalQiC11hGOp3N5NM";
 
-// Function that sends the phone's GPS coordinates to Google to get the current weather
 export const getBeforeIGoWeather = async (lat, lon) => {
-  // The specific address for Google's weather database, including the coordinates and unit system
   const url = `https://weather.googleapis.com/v1/currentConditions:lookup?key=${GOOGLE_WEATHER_KEY}&location.latitude=${lat}&location.longitude=${lon}&unitsSystem=IMPERIAL`;
 
   try {
-    // Sends the request over the internet and waits for a response
     const response = await fetch(url);
-    // Turns the raw response data into a readable JavaScript object
     const data = await response.json();
 
-    // Organizes the specific data pieces needed for the app's screen
+    if (data.error) return null;
+
+    const isDay = data.isDaytime;
+    const temp = data.temperature?.degrees ?? 70;
+    const precipVal = data.precipitation?.probability?.percent ?? 0;
+    const rawDescription =
+      data.weatherCondition?.description?.text?.toLowerCase() || "clear";
+
+    // --- Define the DEFAULT (Normal) State ---
+    let proactiveData = {
+      isCritical: false, // Normal operation
+      iconSymbol: "weather-cloudy",
+      theme: "default",
+      alertTitle: "Departure Protocol",
+      alertBodyDetailed:
+        "Intelligent security sync active. Check standard essentials.",
+      extraItems: [],
+      itemImage: null,
+    };
+
+    // --- FORCED SOLID LOGIC for normal state icons ---
+    const isCloudy =
+      rawDescription.includes("cloud") || rawDescription.includes("overcast");
+    if (isDay) {
+      if (
+        rawDescription.includes("clear") ||
+        rawDescription.includes("sunny")
+      ) {
+        proactiveData.iconSymbol = "weather-sunny";
+      } else {
+        proactiveData.iconSymbol = "weather-cloudy";
+      }
+    } else {
+      // Nighttime Logic
+      if (isCloudy) {
+        proactiveData.iconSymbol = "weather-partly-cloudy";
+      } else {
+        proactiveData.iconSymbol = "weather-night";
+      }
+    }
+
+    // ==========================================
+    // --- INTEL LOGIC & ASSET MAPPING START ---
+    // ==========================================
+
+    // SCENARIO 1: Rain Expected (High precipitation)
+    if (precipVal > 40 || data.weatherCondition?.type?.includes("RAIN")) {
+      proactiveData = {
+        ...proactiveData,
+        isCritical: true,
+        theme: "rainy",
+        iconSymbol: "weather-pouring",
+        alertTitle: "Precipitation Protocol",
+        alertBodyDetailed:
+          "Rain is imminent. Deployment of protective gear is recommended.",
+        extraItems: ["Umbrella", "Rain Shell"],
+        itemImage: require("./assets/images/umbrella.jpg"),
+      };
+    }
+
+    // SCENARIO 2: Cold Weather (Jacket - Under 40°F)
+    else if (temp < 40) {
+      proactiveData = {
+        ...proactiveData,
+        isCritical: true,
+        theme: "cold",
+        iconSymbol: "weather-snowflake",
+        alertTitle: "Cold Weather Advisory",
+        alertBodyDetailed:
+          "Sub-optimal thermal conditions. Heavy insulation required.",
+        extraItems: ["Jacket", "Coat"],
+        itemImage: require("./assets/images/jacket.jpg"),
+      };
+    }
+
+    // SCENARIO 3: Cool Weather (Long Sleeve Shirt - 60°F or less)
+    else if (temp <= 60) {
+      proactiveData = {
+        ...proactiveData,
+        isCritical: true,
+        theme: "cool",
+        iconSymbol: "tshirt-crew",
+        alertTitle: "Thermal Advisory",
+        alertBodyDetailed:
+          "Temperature is 60°F or below. Long sleeves are recommended for comfort.",
+        extraItems: ["Long Sleeve Shirt"],
+        itemImage: require("./assets/images/longsleeve.jpg"),
+      };
+    }
+
+    // SCENARIO 4: Sunny with High UV (Threshold lowered to 2 for Houston testing)
+    else if (isDay && (data.uvIndex > 2 || rawDescription.includes("sunny"))) {
+      proactiveData = {
+        ...proactiveData,
+        isCritical: true,
+        theme: "uv_alert",
+        iconSymbol: "weather-sunny",
+        alertTitle: "Radiation Advisory (UV)",
+        alertBodyDetailed:
+          "UV levels are elevated. Dermal protection (sunscreen) is critical today.",
+        extraItems: ["Sunscreen 50", "Sunglasses"],
+        itemImage: require("./assets/images/sunscreen.jpg"),
+      };
+    }
+
+    // Return the specific protocol data along with the raw numbers
     return {
-      // Rounds the temperature to the nearest whole number (e.g., 63.4 becomes 63)
-      temp: Math.round(data.temperature.degrees),
-      // Pulls the humidity percentage directly from the report
-      humidity: data.relativeHumidity,
-      // Pulls the official chance of rain (0 to 100); defaults to 0 if missing
-      precipProb: data.precipitation?.probability?.percent || 0,
-      // Captures the text description of the weather, like "Mostly Cloudy"
+      temp: Math.round(temp),
+      humidity: data.relativeHumidity || 0,
       description: data.weatherCondition?.description?.text || "Clear",
-      // Converts that description to lowercase for the app's icon-switching logic
-      conditionText:
-        data.weatherCondition?.description?.text.toLowerCase() || "",
-      // Pulls the current UV index rating
       uv: data.uvIndex || 0,
+      precipitation: precipVal,
+      ...proactiveData,
     };
   } catch (error) {
-    // If the internet is down or the key fails, logs the error so I can fix it
-    console.error("Google Weather fetch failed:", error);
-    // Returns nothing so the app doesn't crash from empty data
+    console.error(error);
     return null;
   }
 };
