@@ -16,24 +16,27 @@ import {
 import MapView, { Circle, Marker } from "react-native-maps";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { auth } from "../firebaseConfig";
+import {
+  buildGeofenceConfig,
+  buildGeofenceRegion,
+  buildMapRegion,
+  DEFAULT_GEOFENCE_RADIUS,
+  GEOFENCE_RADIUS_STEP,
+  GEOFENCE_TASK_NAME,
+  MAX_GEOFENCE_RADIUS,
+  MIN_GEOFENCE_RADIUS,
+  normalizeSavedGeofenceConfig,
+  shouldFetchCurrentLocation,
+  type MapRegion,
+} from "../src/services/locationService";
 import { updateGeofenceSettings } from "../src/services/userService";
 import { styles } from "../src/styles/geofencesetup.styles";
 
 export default function GeofenceSetup() {
   const router = useRouter();
-  const DEFAULT_RADIUS = 150;
-  const GEOFENCE_TASK_NAME = "GEOFENCE_CHECK"; // Matches the task name in _layout.tsx
-
-  type MapRegion = {
-    // MapRegion is a custom type that defines the specific area shown on a map; it stores the center point (latitude/longitude) and the "zoom level" (deltas) to determine how much of the surrounding area is visible.
-    latitude: number;
-    longitude: number;
-    latitudeDelta: number;
-    longitudeDelta: number;
-  };
 
   const [region, setRegion] = useState<MapRegion | null>(null);
-  const [radius, setRadius] = useState(DEFAULT_RADIUS);
+  const [radius, setRadius] = useState(DEFAULT_GEOFENCE_RADIUS);
   const [enabled, setEnabled] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -46,13 +49,10 @@ export default function GeofenceSetup() {
         // This line requests the phone's current GPS coordinates (latitude and longitude) one time.
         accuracy: Location.Accuracy.Balanced, // Balanced accuracy provides a reliable location for the map without draining the phone's battery as much as "High" accuracy would.
       });
-      const newRegion = {
-        //Creates a new region object that centers the amp to the phone's current location using latitude and longitude while keeping the app zoomed into a small area (0.01 delta). Higher numbers such as 0.1 would show a larger zoom area.
-        latitude: loc.coords.latitude,
-        longitude: loc.coords.longitude,
-        latitudeDelta: 0.01,
-        longitudeDelta: 0.01,
-      };
+      const newRegion = buildMapRegion(
+        loc.coords.latitude,
+        loc.coords.longitude,
+      ); //Creates a new region object that centers the amp to the phone's current location using latitude and longitude while keeping the app zoomed into a small area (0.01 delta). Higher numbers such as 0.1 would show a larger zoom area.
       setRegion(newRegion);
       console.log(
         "Map updated to current GPS:",
@@ -83,24 +83,20 @@ export default function GeofenceSetup() {
 
         // 2. Load Saved Settings (AsyncStorage)
         const saved = await getGeofence(); //Attempt to load any previously saved geofencing data from the phone's storage.
+        const normalizedSaved = normalizeSavedGeofenceConfig(saved);
 
-        if (saved) {
+        if (normalizedSaved) {
           //If we find a previous geofence saved, we load the map with those settings
-          setEnabled(saved.enabled); // This turns the geofence toggle (on or off switch) to the position the user last left it
-          setRadius(saved.radiusMeters || DEFAULT_RADIUS); //This sets the size of the radius circle. If the saved data is missing a size, it falls back to a standard default value
-          if (saved.latitude && saved.longitude) {
+          setEnabled(normalizedSaved.enabled); // This turns the geofence toggle (on or off switch) to the position the user last left it
+          setRadius(normalizedSaved.radius); //This sets the size of the radius circle. If the saved data is missing a size, it falls back to a standard default value
+          if (normalizedSaved.region) {
             //If we find the center point based on the saved data, we set our map to a specifc region centerd around those coordinated with a small zoom area.
-            setRegion({
-              latitude: saved.latitude,
-              longitude: saved.longitude,
-              latitudeDelta: 0.01,
-              longitudeDelta: 0.01,
-            });
+            setRegion(normalizedSaved.region);
           }
         }
 
         // 3. If no saved region, fetch live GPS automatically
-        if (!saved || !saved.latitude) {
+        if (shouldFetchCurrentLocation(saved)) {
           await handleRecenter();
         }
       } catch (error) {
@@ -136,26 +132,17 @@ export default function GeofenceSetup() {
         );
 
         // 2. Local storage update - saves geofence settings to the phone's storage
-        await saveGeofence({
-          enabled: enabled,
-          latitude: region.latitude,
-          longitude: region.longitude,
-          radiusMeters: radius,
-        });
+        await saveGeofence(buildGeofenceConfig(enabled, region, radius));
 
         // 3. Register/Unregister the actual Background Geofence
         if (enabled) {
-          await Location.startGeofencingAsync(GEOFENCE_TASK_NAME, [
-            //startGeofencingAsync is an expo tool that takes in a task name and watchfor when the user enters or leaves a specific geographic boundary
-            {
-              identifier: "HomeZone",
-              latitude: region.latitude,
-              longitude: region.longitude,
-              radius: radius,
-              notifyOnExit: true,
-              notifyOnEnter: false,
-            },
-          ]);
+          await Location.startGeofencingAsync(
+            GEOFENCE_TASK_NAME,
+            [
+              //startGeofencingAsync is an expo tool that takes in a task name and watchfor when the user enters or leaves a specific geographic boundary
+              buildGeofenceRegion(region, radius),
+            ],
+          );
           console.log(
             "LOG: Geofencing Started at:",
             region.latitude,
@@ -262,9 +249,9 @@ export default function GeofenceSetup() {
 
           <Slider
             style={{ width: "100%", height: 40 }}
-            minimumValue={50}
-            maximumValue={500}
-            step={25}
+            minimumValue={MIN_GEOFENCE_RADIUS}
+            maximumValue={MAX_GEOFENCE_RADIUS}
+            step={GEOFENCE_RADIUS_STEP}
             value={radius}
             onValueChange={setRadius}
             minimumTrackTintColor="#00ff88"
