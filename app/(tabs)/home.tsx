@@ -20,7 +20,7 @@ export default function FinalHomeScreen() {
   ); 
   const [profilePicUri, setProfilePicUri] = useState<string | null>(null); 
 
-  // Weather state to store data from the Google Weather API
+  // Weather state to store data from the Tomorrow.io Weather API
   const [weather, setWeather] = useState<any>(null);
   // State to store the dynamic city name based on coordinates
   const [cityName, setCityName] = useState<string>("Loading...");
@@ -121,10 +121,13 @@ export default function FinalHomeScreen() {
     if (text.includes("rain") || text.includes("drizzle")) return "🌧️";
     if (text.includes("snow") || text.includes("ice")) return "❄️";
 
-    if (isNight) {
+   if (isNight) {
       if (text.includes("clear")) return "🌙";
-      if (text.includes("partly") || text.includes("scattered")) return "🌙☁️"; 
-      return "☁️🌙"; 
+      // Added "cloud" and "overcast" to catch more weather states at night
+      if (text.includes("partly") || text.includes("scattered") || text.includes("cloud") || text.includes("overcast")) {
+        return "night-cloud-special";
+      }
+      return "🌙";
     }
 
     if (text.includes("clear") || text.includes("sunny")) return "☀️";

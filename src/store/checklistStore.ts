@@ -1,12 +1,21 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { auth } from "../../firebaseConfig";
 
+export type Category =
+  | "Essentials"
+  | "Tech"
+  | "Extra Layers"
+  | "Toiletries"
+  | "Other";
+
 export type ChecklistItem = {
   id: string;
   name: string;
   photoUri: string;
   active: boolean;
-  lastChecked?: string; // Automatically stores the date/time verified
+  category: Category; // NEW
+  isCritical: boolean; // NEW: For high-priority escalation logic
+  lastChecked?: string;
 };
 
 // helper to derive storage key for current user (or anonymous)
@@ -24,7 +33,7 @@ let listeners: (() => void)[] = [];
 export const checklistStore = {
   getItems: () => items,
 
-  // NEW: Get the saved geofence coordinates
+  // Get the saved geofence coordinates
   getHomeLocation: () => {
     return {
       latitude: homeLatitude,
@@ -32,7 +41,7 @@ export const checklistStore = {
     };
   },
 
-  // NEW: Set and save geofence coordinates
+  // Set and save geofence coordinates
   setHomeLocation: async (lat: number, lon: number) => {
     homeLatitude = lat;
     homeLongitude = lon;
@@ -50,13 +59,12 @@ export const checklistStore = {
         items = parsed.items || [];
         homeLatitude = parsed.homeLatitude || null;
         homeLongitude = parsed.homeLongitude || null;
-        notifyListeners();
       } else {
         items = [];
         homeLatitude = null;
         homeLongitude = null;
-        notifyListeners();
       }
+      notifyListeners();
     } catch (e) {
       console.error("Failed to load data", e);
     }
@@ -77,12 +85,20 @@ export const checklistStore = {
     }
   },
 
-  addItem: async (name: string, photoUri: string) => {
+  // UPDATED: Accepts category and critical status
+  addItem: async (
+    name: string,
+    photoUri: string,
+    category: Category = "Other",
+    isCritical: boolean = false,
+  ) => {
     const newItem: ChecklistItem = {
       id: Date.now().toString(),
       name,
       photoUri,
       active: true,
+      category,
+      isCritical,
     };
     items.push(newItem);
     await checklistStore.saveToDisk();

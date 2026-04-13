@@ -1,23 +1,17 @@
-import { ChecklistItem, checklistStore } from '@/src/store/checklistStore';
+import { ChecklistItem, checklistStore, Category } from '@/src/store/checklistStore';
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
-  Dimensions // Added to handle full-screen sizing
-  ,
-
-
-
-
-
-  FlatList,
+  Dimensions,
   Image,
   Modal,
   Switch,
   Text,
   TextInput,
   TouchableOpacity,
-  View
+  View,
+  SectionList // Swapped FlatList for SectionList
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { styles } from "../../src/styles/dashboard.styles";
@@ -28,7 +22,6 @@ export default function PortableEssentials() {
   const router = useRouter();
   const [items, setItems] = useState<ChecklistItem[]>(checklistStore.getItems());
   
-  // Controls for Rename and Image window
   const [isRenameVisible, setIsRenameVisible] = useState(false);
   const [isPreviewVisible, setIsPreviewVisible] = useState(false);
   const [selectedItem, setSelectedItem] = useState<ChecklistItem | null>(null);
@@ -40,6 +33,17 @@ export default function PortableEssentials() {
     });
     return unsubscribe;
   }, []);
+
+  // Helper to group items into sections for the SectionList
+  const getSections = () => {
+    const categories: Category[] = ['Essentials', 'Tech', 'Extra Layers', 'Toiletries', 'Other'];
+    return categories
+      .map(cat => ({
+        title: cat.toUpperCase(),
+        data: items.filter(item => item.category === cat)
+      }))
+      .filter(section => section.data.length > 0); // Only show categories that have items
+  };
 
   const handleToggle = (id: string) => checklistStore.toggleItem(id);
 
@@ -71,11 +75,22 @@ export default function PortableEssentials() {
             <Text style={styles.titleText}>My Items</Text>
           </View>
           
-          <FlatList
-            data={items}
+          <SectionList
+            sections={getSections()}
             keyExtractor={(item) => item.id}
+            stickySectionHeadersEnabled={false}
+            renderSectionHeader={({ section: { title } }) => (
+              <View style={{ paddingHorizontal: 20, marginTop: 20, marginBottom: 10 }}>
+                <Text style={{ color: '#2ECC71', fontWeight: 'bold', fontSize: 14, letterSpacing: 1 }}>
+                  {title}
+                </Text>
+              </View>
+            )}
             renderItem={({ item }) => (
-              <View style={styles.itemCard}>
+              <View style={[
+                styles.itemCard, 
+                item.isCritical && { borderLeftWidth: 4, borderLeftColor: '#2ECC71' } // Highlight Critical items
+              ]}>
                 {item.photoUri && (
                   <TouchableOpacity onPress={() => openImagePreview(item)}>
                     <Image source={{ uri: item.photoUri }} style={styles.itemPhoto} />
@@ -87,6 +102,9 @@ export default function PortableEssentials() {
                     style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 5 }}
                   >
                     <Text style={styles.itemText}>{item.name}</Text>
+                    {item.isCritical && (
+                      <Ionicons name="alert-circle" size={16} color="#2ECC71" style={{ marginLeft: 5 }} />
+                    )}
                     <Ionicons name="pencil" size={14} color="#2ECC71" style={{ marginLeft: 8 }} />
                   </TouchableOpacity>
                   <Switch 
@@ -100,17 +118,16 @@ export default function PortableEssentials() {
                 </TouchableOpacity>
               </View>
             )}
+            contentContainerStyle={{ paddingBottom: 100 }}
           />
 
           <TouchableOpacity style={styles.addButton} onPress={() => router.push("/addItem")}>
             <Ionicons name="add" size={28} color="white" />
             <Text style={styles.addButtonText}>Add Item</Text>
           </TouchableOpacity>
-
-          {/* "Next: Setup Geofencing" Button removed to fix navigation issues */}
         </View>
 
-        {/* Image Feature */}
+        {/* Image Preview Modal */}
         <Modal visible={isPreviewVisible} transparent={true} animationType="fade">
           <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.9)', justifyContent: 'center', alignItems: 'center' }}>
             <TouchableOpacity 
@@ -131,7 +148,7 @@ export default function PortableEssentials() {
           </View>
         </Modal>
 
-        {/* Rename Feature */}
+        {/* Rename Modal */}
         <Modal visible={isRenameVisible} transparent={true} animationType="fade">
           <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'center', alignItems: 'center', padding: 20 }}>
             <View style={{ backgroundColor: '#708090', width: '100%', borderRadius: 15, padding: 20, borderWidth: 1, borderColor: '#333' }}>
@@ -156,5 +173,4 @@ export default function PortableEssentials() {
       </SafeAreaView>
     </>
   );
-}
-// i removed styles and created dashboard.styles.ts to clean up the code and make it more modular. the styles are the same as before, just moved to a separate file.
+} // i removed styles and created dashboard.styles.ts to clean up the code and make it more modular. the styles are the same as before, just moved to a separate file.
