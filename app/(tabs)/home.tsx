@@ -5,7 +5,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import * as Location from "expo-location"; // Added for real-time GPS coordinates
 import { Stack, useRouter } from "expo-router";
 import { onAuthStateChanged } from "firebase/auth";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { auth } from "../../firebaseConfig";
@@ -14,11 +14,11 @@ import { getBeforeIGoWeather } from "../../weather";
 
 export default function FinalHomeScreen() {
   // Main home screen displaying user's item status overview
-  const router = useRouter(); 
-  const [items, setItems] = useState<ChecklistItem[]>(
-    checklistStore.getItems(),
-  ); 
-  const [profilePicUri, setProfilePicUri] = useState<string | null>(null); 
+  const router = useRouter();
+
+  // State for items - initialized as empty to prevent ghost data
+  const [items, setItems] = useState<ChecklistItem[]>([]);
+  const [profilePicUri, setProfilePicUri] = useState<string | null>(null);
 
   // Weather state to store data from the Tomorrow.io Weather API
   const [weather, setWeather] = useState<any>(null);
@@ -33,6 +33,13 @@ export default function FinalHomeScreen() {
     // whenever the authenticated user changes we need to reload the data
     const unregisterAuth = onAuthStateChanged(auth, async (user) => {
       if (user) {
+        /**
+         * RESET CHECK:
+         * The manual clear() line has been removed to prevent item loss.
+         * Data now persists across sessions and updates.
+         */
+
+        // Hard refresh from disk on login
         await checklistStore.loadFromDisk(user.uid);
         setItems([...checklistStore.getItems()]);
 
@@ -47,13 +54,15 @@ export default function FinalHomeScreen() {
 
     // subscribe to future store updates
     const unsubscribe = checklistStore.subscribe(() => {
-      setItems([...checklistStore.getItems()]);
+      // Direct sync with store to catch additions/deletions immediately
+      const latestItems = checklistStore.getItems();
+      setItems([...latestItems]);
     });
 
     // Fetch real-time location and weather data
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
-      
+
       const homeCoords = checklistStore.getHomeLocation();
       let lat: number;
       let lon: number;
@@ -73,9 +82,13 @@ export default function FinalHomeScreen() {
 
       // 2. Reverse Geocode to get the City Name dynamically
       try {
-        const address = await Location.reverseGeocodeAsync({ latitude: lat, longitude: lon });
+        const address = await Location.reverseGeocodeAsync({
+          latitude: lat,
+          longitude: lon,
+        });
         if (address.length > 0) {
-          const city = address[0].city || address[0].region || "Unknown Location";
+          const city =
+            address[0].city || address[0].region || "Unknown Location";
           setCityName(city);
         }
       } catch (e) {
@@ -97,43 +110,53 @@ export default function FinalHomeScreen() {
     };
   }, []);
 
+  // Force sync on focus to clear any deleted items from memory
   useFocusEffect(
     React.useCallback(() => {
-      const loadProfilePic = async () => {
-        const storedUri = await AsyncStorage.getItem(profileKey());
-        setProfilePicUri(storedUri); 
-      };
-      loadProfilePic(); 
+      const currentStoreItems = checklistStore.getItems();
+      setItems([...currentStoreItems]);
     }, []),
   );
 
-  const totalCount = items.length; 
-  const nearbyCount = items.filter((i) => i.active).length; 
-  const awayCount = items.filter((i) => !i.active && totalCount > 0).length; 
+  // Derived state for the overview counters
+  const { totalCount, nearbyCount, awayCount } = useMemo(() => {
+    return {
+      totalCount: items.length,
+      nearbyCount: items.filter((i) => i.active).length,
+      awayCount: items.filter((i) => !i.active).length,
+    };
+  }, [items]);
+
+  // Critical Check for Title Urgency (turns title red if a high-priority item is missing)
+  const missingCritical = items.some((i) => i.isCritical && !i.active);
 
   // Helper to determine which icon to show
   const getWeatherEmoji = (condition: string) => {
     const text = (condition || "").toLowerCase();
     const hour = new Date().getHours();
-    const isNight = hour >= 19 || hour <= 6; 
+    const isNight = hour >= 19 || hour <= 6;
 
     if (text.includes("thunderstorm")) return "⛈️";
     if (text.includes("rain") || text.includes("drizzle")) return "🌧️";
     if (text.includes("snow") || text.includes("ice")) return "❄️";
 
-   if (isNight) {
+    if (isNight) {
       if (text.includes("clear")) return "🌙";
-      // Added "cloud" and "overcast" to catch more weather states at night
-      if (text.includes("partly") || text.includes("scattered") || text.includes("cloud") || text.includes("overcast")) {
+      if (
+        text.includes("partly") ||
+        text.includes("scattered") ||
+        text.includes("cloud") ||
+        text.includes("overcast")
+      ) {
         return "night-cloud-special";
       }
       return "🌙";
     }
 
     if (text.includes("clear") || text.includes("sunny")) return "☀️";
-    if (text.includes("partly") || text.includes("scattered")) return "⛅"; 
+    if (text.includes("partly") || text.includes("scattered")) return "⛅";
 
-    return "☁️"; 
+    return "☁️";
   };
 
   return (
@@ -167,15 +190,25 @@ export default function FinalHomeScreen() {
                     width: 45,
                     height: 45,
                     borderRadius: 22.5,
-                    backgroundColor: "#f0e0d0",
+                    backgroundColor: "#12231A",
+                    justifyContent: "center",
+                    alignItems: "center"
                   }}
-                />
+                >
+                   <Ionicons name="person" size={20} color="#2ECC71" />
+                </View>
               )}
             </TouchableOpacity>
           </View>
 
-          <Text style={styles.mainTitle}>
-            {totalCount === 0 ? "Welcome!" : "Ready to head out?"}
+          <Text
+            style={[styles.mainTitle, missingCritical && { color: "#E74C3C" }]}
+          >
+            {missingCritical
+              ? "Critical Items Missing!"
+              : totalCount === 0
+                ? "Welcome!"
+                : "Ready to head out?"}
           </Text>
 
           {/* Intelligent Weather Block */}
@@ -187,7 +220,7 @@ export default function FinalHomeScreen() {
                 borderRadius: 16,
                 marginBottom: 15,
                 borderWidth: 1,
-                borderColor: weather.isCritical ? "#E74C3C" : "#2ECC71", 
+                borderColor: weather.isCritical ? "#E74C3C" : "#2ECC71",
                 flexDirection: weather.isCritical ? "column" : "row",
                 alignItems: weather.isCritical ? "stretch" : "center",
               }}
@@ -198,13 +231,18 @@ export default function FinalHomeScreen() {
                     {getWeatherEmoji(weather.conditionText)}
                   </Text>
                   <View style={{ flex: 1 }}>
-                    {/* City name added to the left of the temp */}
-                    <Text style={{ color: "#fff", fontSize: 20, fontWeight: "bold" }}>
+                    <Text
+                      style={{
+                        color: "#fff",
+                        fontSize: 20,
+                        fontWeight: "bold",
+                      }}
+                    >
                       {cityName} {weather.temp}°F
                     </Text>
-                    {/* Precipitation restored to bottom */}
                     <Text style={{ color: "#95a5a6", fontSize: 12 }}>
-                      Precip: {weather.precipitation}% | UV: {weather.uv} | Humid: {weather.humidity}%
+                      Precip: {weather.precipitation}% | UV: {weather.uv} |
+                      Humid: {weather.humidity}%
                     </Text>
                   </View>
                 </>
@@ -215,48 +253,90 @@ export default function FinalHomeScreen() {
                       flexDirection: "row",
                       justifyContent: "space-between",
                       alignItems: "center",
-                      backgroundColor: "#08100C", 
+                      backgroundColor: "#08100C",
                       padding: 10,
                       borderRadius: 10,
                       marginBottom: 12,
                       borderWidth: 1,
-                      borderColor: "#12231A", 
+                      borderColor: "#12231A",
                     }}
                   >
-                    <Text style={{ color: "#fff", fontSize: 16, fontWeight: "bold" }}>
+                    <Text
+                      style={{
+                        color: "#fff",
+                        fontSize: 16,
+                        fontWeight: "bold",
+                      }}
+                    >
                       {cityName}
                     </Text>
                     <Text style={{ color: "#fff", fontSize: 16 }}>
-                      {weather.temp}°F | Precip: {weather.precipitation}% | UV: {weather.uv}
+                      {weather.temp}°F | Precip: {weather.precipitation}% | UV:{" "}
+                      {weather.uv}
                     </Text>
                   </View>
 
-                  <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 12 }}>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      marginBottom: 12,
+                    }}
+                  >
                     <MaterialCommunityIcons
                       name={weather.iconSymbol || "weather-cloudy"}
                       size={24}
                       color="#E74C3C"
                       style={{ marginRight: 10 }}
                     />
-                    <Text style={{ color: "#E74C3C", fontSize: 16, fontWeight: "bold", textTransform: "uppercase" }}>
+                    <Text
+                      style={{
+                        color: "#E74C3C",
+                        fontSize: 16,
+                        fontWeight: "bold",
+                        textTransform: "uppercase",
+                      }}
+                    >
                       {weather.alertTitle}
                     </Text>
                   </View>
 
-                  <Text style={{ color: "#fff", fontSize: 14, marginBottom: 15, lineHeight: 20 }}>
+                  <Text
+                    style={{
+                      color: "#fff",
+                      fontSize: 14,
+                      marginBottom: 15,
+                      lineHeight: 20,
+                    }}
+                  >
                     {weather.alertBodyDetailed}
                   </Text>
 
                   {weather.itemImage && (
-                    <View style={{ width: "100%", height: 180, borderRadius: 12, overflow: "hidden", marginBottom: 10 }}>
-                      <Image source={weather.itemImage} style={{ width: "100%", height: "100%" }} resizeMode="cover" />
+                    <View
+                      style={{
+                        width: "100%",
+                        height: 180,
+                        borderRadius: 12,
+                        overflow: "hidden",
+                        marginBottom: 10,
+                      }}
+                    >
+                      <Image
+                        source={weather.itemImage}
+                        style={{ width: "100%", height: "100%" }}
+                        resizeMode="cover"
+                      />
                     </View>
                   )}
 
                   {weather.extraItems && weather.extraItems.length > 0 && (
                     <View style={{ marginTop: 5 }}>
                       {weather.extraItems.map((item: string) => (
-                        <Text key={item} style={{ color: "#2ECC71", fontWeight: "bold" }}>
+                        <Text
+                          key={item}
+                          style={{ color: "#2ECC71", fontWeight: "bold" }}
+                        >
                           + {item}
                         </Text>
                       ))}
@@ -271,16 +351,32 @@ export default function FinalHomeScreen() {
             <Text style={styles.locationText}>Home Location Set</Text>
             <Text style={styles.divider}>•</Text>
             <View style={styles.activeBadge}>
-              <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: "#2ECC71", marginRight: 6 }} />
+              <View
+                style={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: 4,
+                  backgroundColor: "#2ECC71",
+                  marginRight: 6,
+                }}
+              />
               <Text style={styles.activeText}>Monitoring Active</Text>
             </View>
           </View>
 
-          <Text style={{ color: "#fff", fontSize: 18, fontWeight: "bold", marginTop: 14, marginBottom: 10 }}>
-            Your Items
+          <Text
+            style={{
+              color: "#fff",
+              fontSize: 18,
+              fontWeight: "bold",
+              marginTop: 14,
+              marginBottom: 10,
+            }}
+          >
+            Your Items ({totalCount})
           </Text>
 
-          {/* ITEM LIST RESTORED */}
+          {/* Horizontal Items List */}
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -296,26 +392,86 @@ export default function FinalHomeScreen() {
                   padding: 15,
                   marginRight: 12,
                   borderWidth: 1,
-                  borderColor: "#f1f1f1",
+                  borderColor: item.isCritical ? "#2ECC71" : "#333",
                 }}
               >
-                <View style={{ width: "100%", height: 90, borderRadius: 12, backgroundColor: "#E8F8F0", marginBottom: 10, overflow: "hidden" }}>
+                <View
+                  style={{
+                    width: "100%",
+                    height: 90,
+                    borderRadius: 12,
+                    backgroundColor: "#08100C",
+                    marginBottom: 10,
+                    overflow: "hidden",
+                  }}
+                >
                   {item.photoUri ? (
-                    <Image source={{ uri: item.photoUri }} style={{ width: "100%", height: "100%" }} resizeMode="cover" />
+                    <Image
+                      source={{ uri: item.photoUri }}
+                      style={{ width: "100%", height: "100%" }}
+                      resizeMode="cover"
+                    />
                   ) : (
-                    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+                    <View
+                      style={{
+                        flex: 1,
+                        justifyContent: "center",
+                        alignItems: "center",
+                      }}
+                    >
                       <Ionicons name="cube-outline" size={32} color="#2ECC71" />
                     </View>
                   )}
                 </View>
-                <Text style={{ color: "#fff", fontSize: 16, fontWeight: "bold" }} numberOfLines={1}>{item.name}</Text>
-                <Text style={{ color: item.active ? "#2ECC71" : "#95A5A6", marginTop: 6 }}>{item.active ? "Nearby" : "Away"}</Text>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <Text
+                    style={{
+                      color: "#fff",
+                      fontSize: 16,
+                      fontWeight: "bold",
+                      flex: 1,
+                    }}
+                    numberOfLines={1}
+                  >
+                    {item.name}
+                  </Text>
+                  {item.isCritical && (
+                    <Ionicons
+                      name="alert-circle"
+                      size={14}
+                      color="#2ECC71"
+                      style={{ marginLeft: 4 }}
+                    />
+                  )}
+                </View>
+                <Text
+                  style={{
+                    color: item.active ? "#2ECC71" : "#95A5A6",
+                    marginTop: 6,
+                  }}
+                >
+                  {item.active ? "Nearby" : "Away"}
+                </Text>
               </View>
             ))}
+            {items.length === 0 && (
+              <Text
+                style={{ color: "#95A5A6", fontStyle: "italic", marginLeft: 5 }}
+              >
+                No items added yet.
+              </Text>
+            )}
           </ScrollView>
 
+          {/* Stats Overview */}
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionLabel}> Items Overview</Text>
+            <Text style={styles.sectionLabel}>Items Overview</Text>
             <TouchableOpacity onPress={() => router.push("/dashboard")}>
               <Text style={styles.viewAll}>View All →</Text>
             </TouchableOpacity>
@@ -329,27 +485,64 @@ export default function FinalHomeScreen() {
 
           <Text style={styles.sectionLabel}>Location Settings</Text>
           <TouchableOpacity
-            style={{ flexDirection: "row", backgroundColor: "#12231A", padding: 15, borderRadius: 12, alignItems: "center", marginBottom: 20, borderWidth: 1, borderColor: "#f1f1f1" }}
+            style={{
+              flexDirection: "row",
+              backgroundColor: "#12231A",
+              padding: 15,
+              borderRadius: 12,
+              alignItems: "center",
+              marginBottom: 20,
+              borderWidth: 1,
+              borderColor: "#333",
+            }}
             onPress={() => router.push("/geofencesetup")}
           >
-            <View style={{ width: 45, height: 45, borderRadius: 10, backgroundColor: "#E8F8F0", justifyContent: "center", alignItems: "center" }}>
+            <View
+              style={{
+                width: 45,
+                height: 45,
+                borderRadius: 10,
+                backgroundColor: "#08100C",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
               <Ionicons name="map-outline" size={24} color="#2ECC71" />
             </View>
             <View style={{ flex: 1, marginLeft: 15 }}>
-              <Text style={{ fontWeight: "bold", fontSize: 16, color: "#2ECC71" }}>Edit Home Zone</Text>
-              <Text style={{ color: "#95a5a6", fontSize: 13 }}>Adjust your GPS detection radius.</Text>
+              <Text
+                style={{ fontWeight: "bold", fontSize: 16, color: "white" }}
+              >
+                Edit Home Zone
+              </Text>
+              <Text style={{ color: "#95a5a6", fontSize: 13 }}>
+                Adjust your GPS detection radius.
+              </Text>
             </View>
-            <Ionicons name="chevron-forward" size={20} color="#ccc" />
+            <Ionicons name="chevron-forward" size={20} color="#2ECC71" />
           </TouchableOpacity>
 
           <Text style={styles.sectionLabel}>Menu</Text>
           <View style={styles.menuContainer}>
-            <MenuListItem icon="help-circle-outline" name="Help & Tutorials" sub="Learn how it works" onPress={() => router.push("/howItWorks?from=home")} />
-            <MenuListItem icon="settings-outline" name="Account Settings" sub="Manage your profile" border={false} />
+            <MenuListItem
+              icon="help-circle-outline"
+              name="Help & Tutorials"
+              sub="Learn how it works"
+              onPress={() => router.push("/howItWorks?from=home")}
+            />
+            <MenuListItem
+              icon="settings-outline"
+              name="Account Settings"
+              sub="Manage your profile"
+              border={false}
+            />
           </View>
         </ScrollView>
 
-        <TouchableOpacity style={styles.fab} onPress={() => router.push("/dashboard")}>
+        <TouchableOpacity
+          style={styles.fab}
+          onPress={() => router.push("/addItem")}
+        >
           <Ionicons name="add" size={32} color="white" />
         </TouchableOpacity>
       </SafeAreaView>
@@ -365,12 +558,23 @@ const StatBox = ({ count, label, color }: any) => (
 );
 
 const MenuListItem = ({ icon, name, sub, border = true, onPress }: any) => (
-  <TouchableOpacity style={[styles.menuRow, border && { borderBottomWidth: 1, borderBottomColor: "#f1f1f1" }]} onPress={onPress}>
-    <Ionicons name={icon} size={22} color="#555" style={{ marginRight: 15 }} />
+  <TouchableOpacity
+    style={[
+      styles.menuRow,
+      border && { borderBottomWidth: 1, borderBottomColor: "#333" },
+    ]}
+    onPress={onPress}
+  >
+    <Ionicons
+      name={icon}
+      size={22}
+      color="#2ECC71"
+      style={{ marginRight: 15 }}
+    />
     <View style={{ flex: 1 }}>
       <Text style={styles.menuText}>{name}</Text>
       <Text style={styles.menuSubText}>{sub}</Text>
     </View>
-    <Ionicons name="chevron-forward" size={18} color="#eee" />
+    <Ionicons name="chevron-forward" size={18} color="#2ECC71" />
   </TouchableOpacity>
 );

@@ -31,7 +31,8 @@ let homeLongitude: number | null = null;
 let listeners: (() => void)[] = [];
 
 export const checklistStore = {
-  getItems: () => items,
+  // FIXED: Returning a spread copy ensures React sees a fresh reference
+  getItems: () => [...items],
 
   // Get the saved geofence coordinates
   getHomeLocation: () => {
@@ -100,7 +101,10 @@ export const checklistStore = {
       category,
       isCritical,
     };
-    items.push(newItem);
+    
+    // FIXED: Spread existing items + new item to trigger React re-renders
+    items = [...items, newItem];
+    
     await checklistStore.saveToDisk();
     notifyListeners();
   },
