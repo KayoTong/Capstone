@@ -4,8 +4,8 @@ import { onAuthStateChanged } from "firebase/auth";
 import { useEffect, useRef } from "react";
 import "react-native-reanimated";
 import { auth } from "../firebaseConfig";
-import { ensureUserDocument } from "../src/services/userService";
 import { ThemeProvider } from "../src/services/themeService";
+import { ensureUserDocument } from "../src/services/userService";
 
 // --- Notification & Geofencing Imports ---
 import * as Location from "expo-location";
@@ -14,14 +14,14 @@ import * as TaskManager from "expo-task-manager";
 import { Platform } from "react-native";
 import { GEOFENCE_TASK_NAME } from "../src/services/locationService";
 import {
-  ACTION_CONFIRM_SAFE,
-  ACTION_NAVIGATE_HOME,
-  DEFAULT_ESSENTIALS,
-  LEAVE_CHECK_BODY,
-  LEAVE_CHECK_CATEGORY_ID,
-  LEAVE_CHECK_TITLE,
-  buildLeaveCheckData,
-  getStringValue,
+    ACTION_CONFIRM_SAFE,
+    ACTION_NAVIGATE_HOME,
+    DEFAULT_ESSENTIALS,
+    LEAVE_CHECK_BODY,
+    LEAVE_CHECK_CATEGORY_ID,
+    LEAVE_CHECK_TITLE,
+    buildLeaveCheckData,
+    getStringValue,
 } from "../src/services/notificationService";
 
 // i deleted the previous constants and helper functions and moved them to src/services/notificationService.ts as part of the march 29th refactor to make the notification logic more modular and reusable across the app (Andy)

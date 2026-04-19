@@ -1,21 +1,22 @@
-import { ChecklistItem, checklistStore, Category } from '@/src/store/checklistStore';
+import { Category, ChecklistItem, checklistStore } from '@/src/store/checklistStore';
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
-  Dimensions,
-  Image,
-  Modal,
-  Switch,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-  SectionList // Swapped FlatList for SectionList
+    Dimensions,
+    Image,
+    Modal,
+    SectionList // Swapped FlatList for SectionList
+    ,
+    Switch,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { styles } from "../../src/styles/dashboard.styles";
 import { useTheme } from '../../src/services/themeService';
+import { styles } from "../../src/styles/dashboard.styles";
 
 const { width, height } = Dimensions.get('window');
 

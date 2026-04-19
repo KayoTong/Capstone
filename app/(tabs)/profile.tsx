@@ -10,8 +10,8 @@ import { EmailAuthProvider, reauthenticateWithCredential, updateEmail, updatePas
 import { useEffect, useState } from 'react';
 import { Alert, Image, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { auth } from '../../firebaseConfig';
-import { styles } from '../../src/styles/login.styles';
 import { useTheme } from '../../src/services/themeService';
+import { styles } from '../../src/styles/login.styles';
 
 export default function ProfileScreen() { // Main profile screen for user settings and profile picture management
   const router = useRouter();

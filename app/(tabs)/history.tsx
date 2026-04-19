@@ -3,16 +3,16 @@ import { Ionicons } from "@expo/vector-icons";
 import { Stack } from "expo-router"; // I removed the unused `useRouter` import
 import { useEffect, useState } from "react";
 import {
-  Dimensions,
-  FlatList,
-  Image,
-  Modal,
-  Pressable,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    Dimensions,
+    FlatList,
+    Image,
+    Modal,
+    Pressable,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "../../src/services/themeService";

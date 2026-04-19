@@ -9,9 +9,9 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { auth } from "../../firebaseConfig";
+import { ThemeMode, useTheme } from "../../src/services/themeService";
 import { styles } from "../../src/styles/Home.styles";
 import { getBeforeIGoWeather } from "../../weather";
-import { ThemeMode, useTheme } from "../../src/services/themeService";
 
 export default function FinalHomeScreen() {
   // Main home screen displaying user's item status overview
