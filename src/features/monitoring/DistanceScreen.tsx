@@ -1,1 +1,0 @@
-// Screen showing distance monitoring.

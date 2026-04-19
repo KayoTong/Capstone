@@ -1,1 +1,0 @@
-// Typography scale tokens.

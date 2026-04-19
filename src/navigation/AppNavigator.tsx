@@ -1,1 +1,0 @@
-// Root app navigator configuration.
