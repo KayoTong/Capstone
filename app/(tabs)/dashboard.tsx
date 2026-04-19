@@ -15,11 +15,13 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { styles } from "../../src/styles/dashboard.styles";
+import { useTheme } from '../../src/services/themeService';
 
 const { width, height } = Dimensions.get('window');
 
 export default function PortableEssentials() {
   const router = useRouter();
+  const { theme } = useTheme();
   const [items, setItems] = useState<ChecklistItem[]>(checklistStore.getItems());
   
   const [isRenameVisible, setIsRenameVisible] = useState(false);
@@ -69,10 +71,10 @@ export default function PortableEssentials() {
     <>
       <Stack.Screen options={{ headerShown: false }} />
 
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}> 
         <View style={{ flex: 1 }}>
-          <View style={styles.header}>
-            <Text style={styles.titleText}>My Items</Text>
+          <View style={[styles.header, { borderBottomColor: theme.border, borderBottomWidth: 1, paddingBottom: 10 }]}> 
+            <Text style={[styles.titleText, { color: theme.text }]}>My Items</Text>
           </View>
           
           <SectionList
@@ -81,15 +83,16 @@ export default function PortableEssentials() {
             stickySectionHeadersEnabled={false}
             renderSectionHeader={({ section: { title } }) => (
               <View style={{ paddingHorizontal: 20, marginTop: 20, marginBottom: 10 }}>
-                <Text style={{ color: '#2ECC71', fontWeight: 'bold', fontSize: 14, letterSpacing: 1 }}>
+                <Text style={{ color: theme.accent, fontWeight: 'bold', fontSize: 14, letterSpacing: 1 }}>
                   {title}
                 </Text>
               </View>
             )}
             renderItem={({ item }) => (
               <View style={[
-                styles.itemCard, 
-                item.isCritical && { borderLeftWidth: 4, borderLeftColor: '#2ECC71' } // Highlight Critical items
+                styles.itemCard,
+                { backgroundColor: theme.surface, borderColor: theme.border, borderWidth: 1 },
+                item.isCritical && { borderLeftWidth: 4, borderLeftColor: theme.accent }
               ]}>
                 {item.photoUri && (
                   <TouchableOpacity onPress={() => openImagePreview(item)}>
@@ -101,16 +104,17 @@ export default function PortableEssentials() {
                     onPress={() => openRenameModal(item.id, item.name)}
                     style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 5 }}
                   >
-                    <Text style={styles.itemText}>{item.name}</Text>
+                    <Text style={[styles.itemText, { color: theme.text }]}>{item.name}</Text>
                     {item.isCritical && (
-                      <Ionicons name="alert-circle" size={16} color="#2ECC71" style={{ marginLeft: 5 }} />
+                      <Ionicons name="alert-circle" size={16} color={theme.accent} style={{ marginLeft: 5 }} />
                     )}
-                    <Ionicons name="pencil" size={14} color="#2ECC71" style={{ marginLeft: 8 }} />
+                    <Ionicons name="pencil" size={14} color={theme.accent} style={{ marginLeft: 8 }} />
                   </TouchableOpacity>
                   <Switch 
                     value={item.active} 
                     onValueChange={() => handleToggle(item.id)}
-                    trackColor={{ false: "#333", true: "#2ECC71" }} 
+                    trackColor={{ false: theme.border, true: theme.accent }} 
+                    thumbColor={item.active ? theme.accent : theme.surface}
                   />
                 </View>
                 <TouchableOpacity onPress={() => checklistStore.removeItem(item.id)} style={styles.deleteBtn}>
@@ -121,9 +125,9 @@ export default function PortableEssentials() {
             contentContainerStyle={{ paddingBottom: 100 }}
           />
 
-          <TouchableOpacity style={styles.addButton} onPress={() => router.push("/addItem")}>
-            <Ionicons name="add" size={28} color="white" />
-            <Text style={styles.addButtonText}>Add Item</Text>
+          <TouchableOpacity style={[styles.addButton, { backgroundColor: theme.accent }]} onPress={() => router.push("/addItem")}>
+            <Ionicons name="add" size={28} color={theme.surface} />
+            <Text style={[styles.addButtonText, { color: theme.surface }]}>Add Item</Text>
           </TouchableOpacity>
         </View>
 
@@ -134,37 +138,36 @@ export default function PortableEssentials() {
               style={{ position: 'absolute', top: 50, right: 20, zIndex: 1 }} 
               onPress={() => setIsPreviewVisible(false)}
             >
-              <Ionicons name="close-circle" size={40} color="white" />
+              <Ionicons name="close-circle" size={40} color={theme.text} />
             </TouchableOpacity>
-            
             {selectedItem?.photoUri && (
-              <Image 
-                source={{ uri: selectedItem.photoUri }} 
-                style={{ width: width * 0.9, height: height * 0.6, borderRadius: 15 }} 
-                resizeMode="contain" 
+              <Image
+                source={{ uri: selectedItem.photoUri }}
+                style={{ width: width * 0.9, height: height * 0.6, borderRadius: 15 }}
+                resizeMode="contain"
               />
             )}
-            <Text style={{ color: 'white', marginTop: 20, fontSize: 20 }}>{selectedItem?.name}</Text>
+            <Text style={{ color: theme.text, marginTop: 20, fontSize: 20 }}>{selectedItem?.name}</Text>
           </View>
         </Modal>
 
         {/* Rename Modal */}
         <Modal visible={isRenameVisible} transparent={true} animationType="fade">
           <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'center', alignItems: 'center', padding: 20 }}>
-            <View style={{ backgroundColor: '#708090', width: '100%', borderRadius: 15, padding: 20, borderWidth: 1, borderColor: '#333' }}>
-              <Text style={{ color: 'white', fontSize: 18, fontWeight: 'bold', marginBottom: 15 }}>Rename Item</Text>
+            <View style={{ backgroundColor: theme.surface, width: '100%', borderRadius: 15, padding: 20, borderWidth: 1, borderColor: theme.border }}>
+              <Text style={{ color: theme.text, fontSize: 18, fontWeight: 'bold', marginBottom: 15 }}>Rename Item</Text>
               <TextInput
-                style={{ backgroundColor: '#fff', color: 'black', padding: 12, borderRadius: 8, marginBottom: 20 }}
+                style={{ backgroundColor: theme.card, color: theme.text, padding: 12, borderRadius: 8, marginBottom: 20, borderWidth: 1, borderColor: theme.border }}
                 value={newName}
                 onChangeText={setNewName}
                 autoFocus={true}
               />
               <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
                 <TouchableOpacity onPress={() => setIsRenameVisible(false)} style={{ marginRight: 20 }}>
-                  <Text style={{ color: '#fff' }}>Cancel</Text>
+                  <Text style={{ color: theme.subText }}>Cancel</Text>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={saveRename}>
-                  <Text style={{ color: '#2ECC71', fontWeight: 'bold' }}>Save</Text>
+                  <Text style={{ color: theme.accent, fontWeight: 'bold' }}>Save</Text>
                 </TouchableOpacity>
               </View>
             </View>

@@ -11,6 +11,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { auth } from "../../firebaseConfig";
 import { styles } from "../../src/styles/Home.styles";
 import { getBeforeIGoWeather } from "../../weather";
+import { ThemeMode, useTheme } from "../../src/services/themeService";
 
 export default function FinalHomeScreen() {
   // Main home screen displaying user's item status overview
@@ -19,6 +20,20 @@ export default function FinalHomeScreen() {
   // State for items - initialized as empty to prevent ghost data
   const [items, setItems] = useState<ChecklistItem[]>([]);
   const [profilePicUri, setProfilePicUri] = useState<string | null>(null);
+  const [themePickerOpen, setThemePickerOpen] = useState(false);
+  const { themeMode, setThemeMode, theme } = useTheme();
+
+  const themeOptions = [
+    { key: "default" as const, label: "Default Mode", description: "Original BeforeIGo colors." },
+    { key: "day" as const, label: "Day Mode", description: "Bright, high contrast UI." },
+    { key: "night" as const, label: "Night Mode", description: "Extra dark theme for low-light use." },
+    { key: "forest" as const, label: "Forest Mode", description: "Green tones for a calm look." },
+    { key: "ocean" as const, label: "Ocean Mode", description: "Cool blue accents and soft grays." },
+  ];
+
+  const handleThemeChange = (value: ThemeMode) => {
+    setThemeMode(value);
+  };
 
   // Weather state to store data from the Tomorrow.io Weather API
   const [weather, setWeather] = useState<any>(null);
@@ -162,7 +177,7 @@ export default function FinalHomeScreen() {
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}> 
         <ScrollView
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
@@ -202,7 +217,10 @@ export default function FinalHomeScreen() {
           </View>
 
           <Text
-            style={[styles.mainTitle, missingCritical && { color: "#E74C3C" }]}
+            style={[
+              styles.mainTitle,
+              { color: missingCritical ? "#E74C3C" : theme.text },
+            ]}
           >
             {missingCritical
               ? "Critical Items Missing!"
@@ -215,12 +233,12 @@ export default function FinalHomeScreen() {
           {weather && (
             <View
               style={{
-                backgroundColor: "#12231A",
+                backgroundColor: theme.surface,
                 padding: 15,
                 borderRadius: 16,
                 marginBottom: 15,
                 borderWidth: 1,
-                borderColor: weather.isCritical ? "#E74C3C" : "#2ECC71",
+                borderColor: weather.isCritical ? "#E74C3C" : theme.accent,
                 flexDirection: weather.isCritical ? "column" : "row",
                 alignItems: weather.isCritical ? "stretch" : "center",
               }}
@@ -233,14 +251,14 @@ export default function FinalHomeScreen() {
                   <View style={{ flex: 1 }}>
                     <Text
                       style={{
-                        color: "#fff",
+                        color: theme.text,
                         fontSize: 20,
                         fontWeight: "bold",
                       }}
                     >
                       {cityName} {weather.temp}°F
                     </Text>
-                    <Text style={{ color: "#95a5a6", fontSize: 12 }}>
+                    <Text style={{ color: theme.subText, fontSize: 12 }}>
                       Precip: {weather.precipitation}% | UV: {weather.uv} |
                       Humid: {weather.humidity}%
                     </Text>
@@ -253,17 +271,17 @@ export default function FinalHomeScreen() {
                       flexDirection: "row",
                       justifyContent: "space-between",
                       alignItems: "center",
-                      backgroundColor: "#08100C",
+                      backgroundColor: theme.card,
                       padding: 10,
                       borderRadius: 10,
                       marginBottom: 12,
                       borderWidth: 1,
-                      borderColor: "#12231A",
+                      borderColor: theme.border,
                     }}
                   >
                     <Text
                       style={{
-                        color: "#fff",
+                        color: theme.text,
                         fontSize: 16,
                         fontWeight: "bold",
                       }}
@@ -303,7 +321,7 @@ export default function FinalHomeScreen() {
 
                   <Text
                     style={{
-                      color: "#fff",
+                      color: theme.subText,
                       fontSize: 14,
                       marginBottom: 15,
                       lineHeight: 20,
@@ -348,7 +366,7 @@ export default function FinalHomeScreen() {
           )}
 
           <View style={styles.statusRow}>
-            <Text style={styles.locationText}>Home Location Set</Text>
+            <Text style={[styles.locationText, { color: theme.text }]}>Home Location Set</Text>
             <Text style={styles.divider}>•</Text>
             <View style={styles.activeBadge}>
               <View
@@ -366,7 +384,7 @@ export default function FinalHomeScreen() {
 
           <Text
             style={{
-              color: "#fff",
+              color: theme.text,
               fontSize: 18,
               fontWeight: "bold",
               marginTop: 14,
@@ -387,12 +405,12 @@ export default function FinalHomeScreen() {
                 key={item.id}
                 style={{
                   width: 160,
-                  backgroundColor: "#12231A",
+                  backgroundColor: theme.surface,
                   borderRadius: 16,
                   padding: 15,
                   marginRight: 12,
                   borderWidth: 1,
-                  borderColor: item.isCritical ? "#2ECC71" : "#333",
+                  borderColor: item.isCritical ? theme.accent : theme.border,
                 }}
               >
                 <View
@@ -400,7 +418,7 @@ export default function FinalHomeScreen() {
                     width: "100%",
                     height: 90,
                     borderRadius: 12,
-                    backgroundColor: "#08100C",
+                    backgroundColor: theme.card,
                     marginBottom: 10,
                     overflow: "hidden",
                   }}
@@ -432,7 +450,7 @@ export default function FinalHomeScreen() {
                 >
                   <Text
                     style={{
-                      color: "#fff",
+                      color: theme.text,
                       fontSize: 16,
                       fontWeight: "bold",
                       flex: 1,
@@ -452,7 +470,7 @@ export default function FinalHomeScreen() {
                 </View>
                 <Text
                   style={{
-                    color: item.active ? "#2ECC71" : "#95A5A6",
+                    color: item.active ? theme.accent : theme.subText,
                     marginTop: 6,
                   }}
                 >
@@ -462,7 +480,11 @@ export default function FinalHomeScreen() {
             ))}
             {items.length === 0 && (
               <Text
-                style={{ color: "#95A5A6", fontStyle: "italic", marginLeft: 5 }}
+                style={{
+                  color: theme.subText,
+                  fontStyle: "italic",
+                  marginLeft: 5,
+                }}
               >
                 No items added yet.
               </Text>
@@ -471,29 +493,29 @@ export default function FinalHomeScreen() {
 
           {/* Stats Overview */}
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionLabel}>Items Overview</Text>
+            <Text style={[styles.sectionLabel, { color: theme.text }]}>Items Overview</Text>
             <TouchableOpacity onPress={() => router.push("/dashboard")}>
               <Text style={styles.viewAll}>View All →</Text>
             </TouchableOpacity>
           </View>
 
           <View style={styles.statsGrid}>
-            <StatBox count={totalCount} label="Total" color="#2ECC71" />
-            <StatBox count={nearbyCount} label="Nearby" color="#2ECC71" />
-            <StatBox count={awayCount} label="Away" color="#2ECC71" />
+            <StatBox count={totalCount} label="Total" color={theme.accent} theme={theme} />
+            <StatBox count={nearbyCount} label="Nearby" color={theme.accent} theme={theme} />
+            <StatBox count={awayCount} label="Away" color={theme.accent} theme={theme} />
           </View>
 
-          <Text style={styles.sectionLabel}>Location Settings</Text>
+          <Text style={[styles.sectionLabel, { color: theme.text }]}>Location Settings</Text>
           <TouchableOpacity
             style={{
               flexDirection: "row",
-              backgroundColor: "#12231A",
+              backgroundColor: theme.surface,
               padding: 15,
               borderRadius: 12,
               alignItems: "center",
               marginBottom: 20,
               borderWidth: 1,
-              borderColor: "#333",
+              borderColor: theme.border,
             }}
             onPress={() => router.push("/geofencesetup")}
           >
@@ -502,7 +524,7 @@ export default function FinalHomeScreen() {
                 width: 45,
                 height: 45,
                 borderRadius: 10,
-                backgroundColor: "#08100C",
+                backgroundColor: theme.card,
                 justifyContent: "center",
                 alignItems: "center",
               }}
@@ -511,19 +533,28 @@ export default function FinalHomeScreen() {
             </View>
             <View style={{ flex: 1, marginLeft: 15 }}>
               <Text
-                style={{ fontWeight: "bold", fontSize: 16, color: "white" }}
+                style={{
+                  fontWeight: "bold",
+                  fontSize: 16,
+                  color: theme.text,
+                }}
               >
                 Edit Home Zone
               </Text>
-              <Text style={{ color: "#95a5a6", fontSize: 13 }}>
+              <Text style={{ color: theme.subText, fontSize: 13 }}>
                 Adjust your GPS detection radius.
               </Text>
             </View>
             <Ionicons name="chevron-forward" size={20} color="#2ECC71" />
           </TouchableOpacity>
 
-          <Text style={styles.sectionLabel}>Menu</Text>
-          <View style={styles.menuContainer}>
+          <Text style={[styles.sectionLabel, { color: theme.text }]}>Menu</Text>
+          <View
+            style={[
+              styles.menuContainer,
+              { backgroundColor: theme.surface, borderColor: theme.border },
+            ]}
+          >
             <MenuListItem
               icon="help-circle-outline"
               name="Help & Tutorials"
@@ -531,12 +562,59 @@ export default function FinalHomeScreen() {
               onPress={() => router.push("/howItWorks?from=home")}
             />
             <MenuListItem
-              icon="settings-outline"
-              name="Account Settings"
-              sub="Manage your profile"
+              icon="color-palette-outline"
+              name="Theme Settings"
+              sub={`Current: ${themeMode.charAt(0).toUpperCase() + themeMode.slice(1)} Mode`}
               border={false}
+              onPress={() => setThemePickerOpen((prev) => !prev)}
             />
           </View>
+
+          {themePickerOpen && (
+            <View
+              style={[
+                styles.themePickerPanel,
+                { backgroundColor: theme.surface, borderColor: theme.border },
+              ]}
+            >
+              {themeOptions.map((option) => (
+                <TouchableOpacity
+                  key={option.key}
+                  style={[
+                    styles.themeOptionButton,
+                    {
+                      borderColor: theme.border,
+                      backgroundColor:
+                        themeMode === option.key ? theme.card : theme.surface,
+                    },
+                  ]}
+                  onPress={() => handleThemeChange(option.key)}
+                >
+                  <View style={{ flex: 1 }}>
+                    <Text
+                      style={[
+                        styles.themeOptionLabel,
+                        { color: theme.text },
+                      ]}
+                    >
+                      {option.label}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.themeOptionDescription,
+                        { color: theme.subText },
+                      ]}
+                    >
+                      {option.description}
+                    </Text>
+                  </View>
+                  {themeMode === option.key && (
+                    <Ionicons name="checkmark" size={18} color={theme.accent} />
+                  )}
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
         </ScrollView>
 
         <TouchableOpacity
@@ -550,10 +628,10 @@ export default function FinalHomeScreen() {
   );
 }
 
-const StatBox = ({ count, label, color }: any) => (
-  <View style={styles.statBox}>
+const StatBox = ({ count, label, color, theme }: any) => (
+  <View style={[styles.statBox, { backgroundColor: theme.surface, borderColor: theme.border }]}>
     <Text style={[styles.statCount, { color }]}>{count}</Text>
-    <Text style={styles.statLabel}>{label}</Text>
+    <Text style={[styles.statLabel, { color: theme.text }]}>{label}</Text>
   </View>
 );
 

@@ -15,10 +15,12 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useTheme } from "../../src/services/themeService";
 
 const { width } = Dimensions.get("window");
 
 export default function HistoryScreen() {
+  const { theme } = useTheme();
   const [items, setItems] = useState(checklistStore.getItems());
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
@@ -48,33 +50,33 @@ export default function HistoryScreen() {
   );
 
   const renderItem = ({ item }: { item: ChecklistItem }) => (
-    <View style={styles.card}>
+    <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}> 
       <TouchableOpacity
-        style={styles.imageContainer}
+        style={[styles.imageContainer, { backgroundColor: theme.card }]}
         onPress={() => item.photoUri && setSelectedImage(item.photoUri)}
       >
         {item.photoUri ? (
           <Image source={{ uri: item.photoUri }} style={styles.itemImage} />
         ) : (
-          <View style={styles.placeholderIcon}>
-            <Ionicons name="cube" size={24} color="#2ECC71" />
+          <View style={[styles.placeholderIcon, { backgroundColor: theme.card }] }>
+            <Ionicons name="cube" size={24} color={theme.accent} />
           </View>
         )}
       </TouchableOpacity>
 
       <View style={styles.infoContainer}>
-        <Text style={styles.itemName}>{item.name}</Text>
+        <Text style={[styles.itemName, { color: theme.text }]}>{item.name}</Text>
         <View style={styles.verifiedRow}>
           {/* LOGIC: Change icon color/style if not verified */}
           <Ionicons
             name={item.lastChecked ? "checkmark-circle" : "ellipse-outline"}
             size={14}
-            color={item.lastChecked ? "#2ECC71" : "#4A5D52"}
+            color={item.lastChecked ? theme.accent : theme.subText}
           />
           <Text
             style={[
               styles.verifiedText,
-              !item.lastChecked && { color: "#4A5D52" },
+              { color: item.lastChecked ? theme.accent : theme.subText },
             ]}
           >
             {item.lastChecked ? `Checked: ${item.lastChecked}` : "Not verified"}
@@ -85,30 +87,30 @@ export default function HistoryScreen() {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
       <Stack.Screen options={{ headerShown: false }} />
 
       {/* Header with Search Toggle */}
       <View style={styles.header}>
         {!isSearching ? (
           <>
-            <Text style={styles.headerTitle}>History</Text>
+            <Text style={[styles.headerTitle, { color: theme.text }]}>History</Text>
             <TouchableOpacity onPress={() => setIsSearching(true)}>
-              <Ionicons name="search-outline" size={24} color="#fff" />
+              <Ionicons name="search-outline" size={24} color={theme.text} />
             </TouchableOpacity>
           </>
         ) : (
-          <View style={styles.searchBarContainer}>
+          <View style={[styles.searchBarContainer, { backgroundColor: theme.surface, borderColor: theme.border }]}>
             <Ionicons
               name="search"
               size={20}
-              color="#4A5D52"
+              color={theme.subText}
               style={{ marginRight: 10 }}
             />
             <TextInput
-              style={styles.searchInput}
+              style={[styles.searchInput, { color: theme.text }]}
               placeholder="Search items..."
-              placeholderTextColor="#4A5D52"
+              placeholderTextColor={theme.subText}
               autoFocus
               value={searchQuery}
               onChangeText={setSearchQuery}
@@ -119,7 +121,7 @@ export default function HistoryScreen() {
                 setSearchQuery("");
               }}
             >
-              <Ionicons name="close-circle" size={20} color="#fff" />
+              <Ionicons name="close-circle" size={20} color={theme.text} />
             </TouchableOpacity>
           </View>
         )}
@@ -130,11 +132,11 @@ export default function HistoryScreen() {
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContent}
         ListHeaderComponent={
-          <Text style={styles.sectionTitle}>ITEM ACTIVITY</Text>
+          <Text style={[styles.sectionTitle, { color: theme.subText }]}>ITEM ACTIVITY</Text>
         }
         renderItem={renderItem}
         ListEmptyComponent={
-          <Text style={styles.emptyText}>
+          <Text style={[styles.emptyText, { color: theme.subText }]}> 
             {searchQuery
               ? `No matches for "${searchQuery}"`
               : "No items found."}

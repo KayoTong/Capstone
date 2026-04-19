@@ -5,6 +5,7 @@ import { useEffect, useRef } from "react";
 import "react-native-reanimated";
 import { auth } from "../firebaseConfig";
 import { ensureUserDocument } from "../src/services/userService";
+import { ThemeProvider } from "../src/services/themeService";
 
 // --- Notification & Geofencing Imports ---
 import * as Location from "expo-location";
@@ -174,10 +175,10 @@ export default function RootLayout() {
   }, []);
 
   return (
-    <>
+    <ThemeProvider>
       {/* Set headerShown to false globally to clean up the UI */}
       <Stack screenOptions={{ headerShown: false }} />
       <StatusBar style="auto" />
-    </>
+    </ThemeProvider>
   );
 }
