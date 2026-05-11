@@ -19,9 +19,11 @@
       }
     },
     "android": {
+      "package": "com.kayotonge.beforeigo",
+      "icon": "./assets/images/beforeigo-ios-icon-1024.png",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/beforeigo-android-adaptive-foreground-1024.png"
+        "backgroundColor": "#03170F",
+        "foregroundImage": "./assets/images/beforeigo-ios-icon-1024.png"
       },
       "predictiveBackGestureEnabled": false,
       "package": "com.kayotonge.beforeigo",
@@ -37,7 +39,10 @@
         "FOREGROUND_SERVICE"
       ]
     },
-
+    "notification": {
+      "icon": "./assets/images/beforeigo-ios-icon-1024.png",
+      "color": "#89D7A7"
+    },
     "plugins": [
       "expo-router",
       [
